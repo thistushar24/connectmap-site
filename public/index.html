@@ -64,6 +64,18 @@
             gap: 10px;
         }
 
+        .dropzone {
+            border: 2px dashed var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .dropzone.dragover {
+            background: rgba(46, 160, 67, 0.1);
+            border-color: var(--accent-color);
+        }
+
         input[type="file"], input[type="text"] {
             font-family: inherit;
             background: transparent;
@@ -294,15 +306,20 @@
     <div class="panel" id="seeder-panel">
         <div class="panel-title">[ SEEDER ]</div>
         
-        <div class="input-group" id="file-select-group">
-            <input type="file" id="file-input" />
-            <div id="file-warning" style="color: var(--warning-color); font-size: 0.8em; margin-top: 5px;"></div>
+        <div class="input-group dropzone" id="file-select-group">
+            <div style="text-align: center; margin-bottom: 15px;">
+                <p style="margin-top: 0;">Drag & Drop a file here</p>
+                <span style="color: var(--border-color);">— OR —</span>
+            </div>
+            <input type="file" id="file-input" style="display: none;" />
+            <button id="btn-browse" style="background:#1f6feb; margin-bottom:10px;">Browse Files</button>
+            <div id="file-warning" style="text-align: center; color: var(--warning-color); font-size: 0.8em; margin-top: 5px;"></div>
             
-            <label style="cursor: pointer; margin-top: 10px; font-weight: bold;">
+            <label style="cursor: pointer; margin-top: 10px; font-weight: bold; text-align: center;">
                 <input type="checkbox" id="seeder-video-check"> 🎥 Enable Camera & Mic
             </label>
 
-            <button id="btn-create-room" disabled>Create Room</button>
+            <button id="btn-create-room" disabled style="margin-top: 15px;">Create Room</button>
         </div>
 
         <div id="seeder-active" class="hidden">
@@ -398,6 +415,28 @@
     const seederStatusText = document.getElementById('seeder-status-text');
     const fileSelectGroup = document.getElementById('file-select-group');
     const seederVideoCheck = document.getElementById('seeder-video-check');
+    const btnBrowse = document.getElementById('btn-browse');
+
+    if (btnBrowse) btnBrowse.addEventListener('click', () => fileInput.click());
+
+    fileSelectGroup.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        fileSelectGroup.classList.add('dragover');
+    });
+
+    fileSelectGroup.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        fileSelectGroup.classList.remove('dragover');
+    });
+
+    fileSelectGroup.addEventListener('drop', (e) => {
+        e.preventDefault();
+        fileSelectGroup.classList.remove('dragover');
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            fileInput.dispatchEvent(new Event('change'));
+        }
+    });
 
     // Leecher UI
     const joinCodeInput = document.getElementById('join-code');
