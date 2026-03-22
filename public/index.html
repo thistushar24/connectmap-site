@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EDI 3 P2P File Sharing & Video Call</title>
+    <title>P2P Multi-Tool Workspace</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-color: #0d1117;
+            --panel-bg: rgba(0, 0, 0, 0.4);
             --text-color: #3fb950;
             --accent-color: #2ea043;
             --border-color: #30363d;
+            --me-chat-bg: #1f6feb;
+            --them-chat-bg: #238636;
             --warning-color: #d29922;
             --error-color: #f85149;
         }
@@ -21,75 +24,76 @@
             color: var(--text-color);
             margin: 0;
             padding: 20px;
+            box-sizing: border-box;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
-            box-sizing: border-box;
         }
 
         h1 {
             text-align: center;
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
-        .container {
-            display: flex;
-            gap: 40px;
-            flex: 1;
-        }
-
-        .panel {
-            flex: 1;
+        /* LOBBY UI */
+        .lobby-container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            background: var(--panel-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .panel-title {
-            font-size: 1.2em;
-            font-weight: bold;
             text-align: center;
-            margin-bottom: 20px;
         }
 
-        .input-group {
-            margin-bottom: 20px;
+        .mode-selector {
             display: flex;
-            flex-direction: column;
             gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
-        .dropzone {
-            border: 2px dashed var(--border-color);
-            padding: 20px;
+        .mode-card {
+            border: 2px solid var(--border-color);
+            padding: 15px 20px;
             border-radius: 8px;
-            transition: background 0.2s, border-color 0.2s;
+            cursor: pointer;
+            flex: 1;
+            min-width: 100px;
+            transition: all 0.2s;
+            font-weight: bold;
+            color: #8b949e;
         }
 
-        .dropzone.dragover {
+        .mode-card:hover { border-color: var(--accent-color); color: var(--text-color); }
+        .mode-card.active {
             background: rgba(46, 160, 67, 0.1);
             border-color: var(--accent-color);
+            color: var(--text-color);
         }
 
-        input[type="file"], input[type="text"] {
+        .setup-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        input[type="text"] {
             font-family: inherit;
             background: transparent;
             border: 1px solid var(--border-color);
             color: var(--text-color);
             padding: 10px;
             border-radius: 4px;
-        }
-
-        input[type="text"] {
-            font-size: 1.5em;
             text-align: center;
-            letter-spacing: 5px;
-            text-transform: uppercase;
+            font-size: 1.2em;
+            letter-spacing: 2px;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         button {
@@ -102,792 +106,504 @@
             cursor: pointer;
             font-size: 1em;
             font-weight: bold;
+            width: 100%;
             transition: opacity 0.2s;
         }
+        button:hover { opacity: 0.8; }
+        button:disabled { background: var(--border-color); cursor: not-allowed; color: #8b949e; }
 
-        button:hover {
-            opacity: 0.8;
-        }
-
-        button:disabled {
-            background: var(--border-color);
-            color: #8b949e;
-            cursor: not-allowed;
-        }
-
-        .room-code-display {
-            font-size: 3em;
-            text-align: center;
-            letter-spacing: 10px;
-            margin: 20px 0;
-            color: #fff;
-            text-shadow: 0 0 10px var(--accent-color);
-        }
-
-        .stats {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 4px;
-            font-size: 0.9em;
-        }
-
-        .stat-row {
+        /* ROOM UI */
+        .room-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 5px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background: var(--border-color);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 15px;
-            position: relative;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--accent-color);
-            width: 0%;
-            transition: width 0.1s linear;
-        }
-
-        .progress-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 0.8em;
-            text-shadow: 1px 1px 2px black;
-        }
-
-        .piece-map {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 2px;
-            margin-top: 15px;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-
-        .piece {
-            width: 10px;
-            height: 10px;
-            background: var(--border-color);
-            border-radius: 2px;
-            transition: background 0.2s;
-        }
-
-        .piece.have {
-            background: var(--accent-color);
-        }
-
-        .sparkline {
-            width: 100%;
-            height: 50px;
-            border-bottom: 1px solid var(--border-color);
-            border-left: 1px solid var(--border-color);
-            margin-top: 15px;
-            display: flex;
-            align-items: flex-end;
-            padding-bottom: 2px;
-            gap: 2px;
-        }
-
-        .spark-bar {
-            flex: 1;
-            background: var(--accent-color);
-            min-height: 2px;
-            opacity: 0.8;
-            transition: height 0.2s;
-        }
-
-        .connection-status {
-            display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--error-color);
-        }
-
-        .dot.connected {
-            background: var(--accent-color);
-            box-shadow: 0 0 8px var(--accent-color);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(46, 160, 67, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(46, 160, 67, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(46, 160, 67, 0); }
-        }
-
-        .video-container {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            justify-content: center;
-        }
-
-        .video-box {
-            position: relative;
-            width: 50%;
-            aspect-ratio: 4/3;
-            background: #000;
+            background: var(--panel-bg);
             border: 1px solid var(--border-color);
+            padding: 10px 20px;
             border-radius: 8px;
-            overflow: hidden;
+            margin-bottom: 20px;
         }
+        .status-dot { display: inline-block; width: 10px; height: 10px; background: var(--error-color); border-radius: 50%; margin-right: 5px; }
+        .status-dot.connected { background: var(--accent-color); box-shadow: 0 0 8px var(--accent-color); }
 
-        .video-box video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transform: scaleX(-1); /* mirror effect */
-        }
+        .app-panel { display: none; }
+        .app-panel.active { display: block; }
 
-        .video-label {
-            position: absolute;
-            bottom: 5px;
-            left: 5px;
-            background: rgba(0,0,0,0.7);
-            padding: 2px 5px;
-            font-size: 0.7em;
-            border-radius: 4px;
-            color: #fff;
-            z-index: 10;
+        /* --- FILES EXTENSION --- */
+        .files-grid { display: flex; gap: 20px; }
+        .files-col { flex: 1; background: var(--panel-bg); padding: 20px; border: 1px solid var(--border-color); border-radius: 8px; }
+        .dropzone {
+            border: 2px dashed var(--border-color); padding: 30px 20px; text-align: center;
+            border-radius: 8px; cursor: pointer; transition: 0.2s; margin-bottom: 15px;
         }
+        .dropzone:hover, .dropzone.dragover { background: rgba(46, 160, 67, 0.1); border-color: var(--accent-color); }
+        .progress-bar { width: 100%; height: 20px; background: var(--border-color); border-radius: 10px; overflow: hidden; margin-top: 15px; position: relative; }
+        .progress-fill { height: 100%; background: var(--accent-color); width: 0%; transition: width 0.1s linear; }
+        .progress-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 0.8em; text-shadow: 1px 1px 2px black; }
 
-        .footer {
-            text-align: center;
-            margin-top: auto;
-            padding-top: 30px;
-            font-size: 0.8em;
-            color: #8b949e;
-        }
+        /* --- VIDEO EXTENSION --- */
+        .video-grid { display: flex; gap: 20px; justify-content: center; }
+        .video-box { position: relative; width: 45%; aspect-ratio: 4/3; background: #000; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
+        video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+        .video-label { position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.7); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; }
+
+        /* --- CHAT EXTENSION --- */
+        .chat-container { max-width: 600px; margin: 0 auto; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; height: 500px; display: flex; flex-direction: column; }
+        .chat-log { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; padding-right: 10px; }
+        .chat-msg { max-width: 80%; padding: 8px 12px; border-radius: 8px; color: white; word-wrap: break-word; }
+        .msg-me { align-self: flex-end; background: var(--me-chat-bg); border-bottom-right-radius: 0; }
+        .msg-them { align-self: flex-start; background: var(--them-chat-bg); border-bottom-left-radius: 0; }
+
+        /* --- GAME EXTENSION --- */
+        .game-container { text-align: center; }
+        .board { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(3, 100px); gap: 5px; background: var(--border-color); padding: 5px; border-radius: 8px; margin: 20px auto; width:fit-content; }
+        .cell { background: var(--bg-color); display: flex; align-items: center; justify-content: center; font-size: 3em; font-weight: bold; cursor: pointer; color: white; }
+        .cell:hover { background: rgba(255,255,255,0.1); }
+        .game-status { font-size: 1.2em; margin-bottom: 10px; }
 
         .hidden { display: none !important; }
-
-        @media (max-width: 800px) {
-            .container { flex-direction: column; }
-        }
+        @media (max-width: 800px) { .files-grid { flex-direction: column; } .video-grid { flex-direction: column; } .video-box { width: 100%; } }
     </style>
 </head>
 <body>
 
-<h1>Peer-to-Peer Terminal & Video</h1>
+<h1>P2P Multi-Tool Workspace</h1>
 
-<!-- VIDEO CALL UI -->
-<div class="video-container hidden" id="video-ui">
-    <div class="video-box">
-        <video id="local-video" autoplay muted playsinline></video>
-        <div class="video-label">YOU</div>
+<!-- LOBBY UI -->
+<div id="lobby-ui" class="lobby-container">
+    <h2>1. Select Room Type</h2>
+    <div class="mode-selector">
+        <div class="mode-card active" data-mode="files">📁<br>File Share</div>
+        <div class="mode-card" data-mode="video">🎥<br>Video Call</div>
+        <div class="mode-card" data-mode="chat">💬<br>Secure Chat</div>
+        <div class="mode-card" data-mode="game">🎮<br>Tic-Tac-Toe</div>
     </div>
-    <div class="video-box">
-        <video id="remote-video" autoplay playsinline></video>
-        <div class="video-label">PEER</div>
+
+    <h2>2. Connect</h2>
+    <div class="setup-actions">
+        <button id="btn-create">Create Dedicated Room</button>
+        <div style="color: var(--border-color);">— OR —</div>
+        <input type="text" id="input-join" placeholder="Enter 6-Letter Code" maxlength="6" />
+        <button id="btn-join" disabled>Join Room</button>
     </div>
+    <div id="setup-msg" style="margin-top:15px; color:#8b949e;"></div>
 </div>
 
-<div class="container">
-    <!-- SEEDER PANEL -->
-    <div class="panel" id="seeder-panel">
-        <div class="panel-title">[ SEEDER ]</div>
-        
-        <div class="input-group dropzone" id="file-select-group">
-            <div style="text-align: center; margin-bottom: 15px;">
-                <p style="margin-top: 0;">Drag & Drop a file here</p>
-                <span style="color: var(--border-color);">— OR —</span>
-            </div>
-            <input type="file" id="file-input" style="display: none;" />
-            <button id="btn-browse" style="background:#1f6feb; margin-bottom:10px;">Browse Files</button>
-            <div id="file-warning" style="text-align: center; color: var(--warning-color); font-size: 0.8em; margin-top: 5px;"></div>
-            
-            <label style="cursor: pointer; margin-top: 10px; font-weight: bold; text-align: center;">
-                <input type="checkbox" id="seeder-video-check"> 🎥 Enable Camera & Mic
-            </label>
-
-            <button id="btn-create-room" disabled style="margin-top: 15px;">Create Room</button>
+<!-- ACTIVE ROOM UI -->
+<div id="room-ui" class="hidden">
+    <div class="room-header">
+        <div>
+            <strong>Mode:</strong> <span id="hdr-mode" style="color:var(--accent-color); text-transform:uppercase;"></span>
         </div>
-
-        <div id="seeder-active" class="hidden">
-            <div style="text-align: center; margin-bottom: 10px;">Share this room code:</div>
-            <div class="room-code-display" id="display-room-code">------</div>
-            
-            <div class="connection-status">
-                <div class="dot" id="seeder-dot"></div>
-                <span id="seeder-status-text">Waiting for leecher...</span>
-            </div>
-
-            <div class="stats">
-                <div class="stat-row"><span>File:</span> <span id="seeder-filename">-</span></div>
-                <div class="stat-row"><span>Size:</span> <span id="seeder-filesize">-</span></div>
-                <div class="stat-row"><span>Chunks To Send:</span> <span id="seeder-chunks-sent">0 / 0</span></div>
-                <div class="stat-row"><span>Peers:</span> <span id="seeder-peers">0</span></div>
-                <div class="stat-row"><span>Speed:</span> <span id="seeder-speed">0.00 MB/s</span></div>
-            </div>
-
-            <div class="progress-bar">
-                <div class="progress-fill" id="seeder-progress-fill"></div>
-                <div class="progress-text" id="seeder-progress-text">0%</div>
-            </div>
-
-            <div class="sparkline" id="seeder-sparkline"></div>
+        <div style="font-size: 1.5em; letter-spacing: 3px;" id="hdr-code">------</div>
+        <div>
+            <span class="status-dot" id="status-dot"></span>
+            <span id="status-text">Waiting for peer...</span>
         </div>
     </div>
 
-    <!-- LEECHER PANEL -->
-    <div class="panel" id="leecher-panel">
-        <div class="panel-title">[ LEECHER ]</div>
-        
-        <div class="input-group" id="join-group">
-            <input type="text" id="join-code" placeholder="ENTER 6-CHAR CODE" maxlength="6" />
-            
-            <label style="cursor: pointer; margin-top: 10px; font-weight: bold;">
-                <input type="checkbox" id="leecher-video-check"> 🎥 Enable Camera & Mic
-            </label>
-
-            <button id="btn-join-room" disabled>Connect & Download</button>
-        </div>
-
-        <div id="leecher-active" class="hidden">
-            <div class="connection-status">
-                <div class="dot" id="leecher-dot"></div>
-                <span id="leecher-status-text">Connecting to peer...</span>
+    <!-- APP: FILES -->
+    <div id="app-files" class="app-panel">
+        <div class="files-grid">
+            <div class="files-col">
+                <h3 style="text-align:center; margin-top:0;">Send File</h3>
+                <div class="dropzone" id="dropzone">
+                    <p>Drag & Drop a file here</p>
+                    <span style="color: var(--border-color);">— OR —</span><br><br>
+                    <button id="btn-browse" style="width:auto; padding: 8px 16px;">Browse Files</button>
+                    <input type="file" id="file-input" style="display:none;">
+                </div>
+                <div id="send-status" class="hidden">
+                    <div>Sending: <span id="send-name"></span></div>
+                    <div class="progress-bar"><div class="progress-fill" id="send-fill"></div><div class="progress-text" id="send-text">0%</div></div>
+                </div>
             </div>
-
-            <div class="stats">
-                <div class="stat-row"><span>File:</span> <span id="leecher-filename">-</span></div>
-                <div class="stat-row"><span>Size:</span> <span id="leecher-filesize">-</span></div>
-                <div class="stat-row"><span>Chunks:</span> <span id="leecher-chunks">0 / 0</span></div>
-                <div class="stat-row"><span>Speed:</span> <span id="leecher-speed">0.00 MB/s</span></div>
-                <div class="stat-row"><span>ETA:</span> <span id="leecher-eta">--:--</span></div>
+            <div class="files-col">
+                <h3 style="text-align:center; margin-top:0;">Receive File</h3>
+                <div style="text-align:center; color:#8b949e; margin-bottom: 20px;">Waiting for peer to send a file...</div>
+                <div id="recv-status" class="hidden">
+                    <div>Receiving: <span id="recv-name"></span></div>
+                    <div class="progress-bar"><div class="progress-fill" id="recv-fill" style="background:var(--me-chat-bg)"></div><div class="progress-text" id="recv-text">0%</div></div>
+                    <button id="btn-save-file" class="hidden" style="margin-top: 15px; background:var(--me-chat-bg)">Save File 💾</button>
+                </div>
             </div>
-
-            <div class="progress-bar">
-                <div class="progress-fill" id="leecher-progress-fill"></div>
-                <div class="progress-text" id="leecher-progress-text">0%</div>
-            </div>
-
-            <div class="piece-map" id="leecher-piece-map"></div>
-
-            <div class="sparkline" id="leecher-sparkline"></div>
-
-            <button id="btn-save-file" class="hidden" style="margin-top: 20px; width: 100%;">Save File 💾</button>
         </div>
     </div>
+
+    <!-- APP: VIDEO -->
+    <div id="app-video" class="app-panel">
+        <div class="video-grid">
+            <div class="video-box">
+                <video id="local-video" autoplay muted playsinline></video>
+                <div class="video-label">YOU</div>
+            </div>
+            <div class="video-box">
+                <video id="remote-video" autoplay playsinline></video>
+                <div class="video-label">PEER</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- APP: CHAT -->
+    <div id="app-chat" class="app-panel">
+        <div class="chat-container">
+            <div class="chat-log" id="chat-log">
+                <div style="text-align: center; color: #8b949e; font-size: 0.8em; margin-bottom: 10px;">Secure Room Created. Chat is end-to-end encrypted.</div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="chat-input" placeholder="Type a message..." disabled>
+                <button id="btn-send-chat" disabled style="width:100px;">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- APP: GAME -->
+    <div id="app-game" class="app-panel">
+        <div class="game-container">
+            <div id="game-status" class="game-status">Waiting for peer...</div>
+            <div class="board" id="board">
+                <div class="cell" data-index="0"></div><div class="cell" data-index="1"></div><div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div><div class="cell" data-index="4"></div><div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div><div class="cell" data-index="7"></div><div class="cell" data-index="8"></div>
+            </div>
+            <button id="btn-restart" class="hidden" style="width:200px; margin:0 auto; background:var(--border-color);">Play Again</button>
+            <div style="margin-top: 15px; color:#8b949e;">You are: <strong id="game-symbol" style="color:white; font-size:1.5em;">-</strong></div>
+        </div>
+    </div>
+
 </div>
 
-<div class="footer">
-    EDI 3 — Tushar · Sahil · Siddhesh · Prathmesh · Vishal
-</div>
+<div style="text-align: center; margin-top: 40px; font-size: 0.8em; color: #8b949e;">EDI 3 Project</div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-    const CHUNK_SIZE = 16384; // 16KB
-
-    // Seeder UI
-    const fileInput = document.getElementById('file-input');
-    const btnCreateRoom = document.getElementById('btn-create-room');
-    const fileWarning = document.getElementById('file-warning');
-    const seederActive = document.getElementById('seeder-active');
-    const displayRoomCode = document.getElementById('display-room-code');
-    const seederFilename = document.getElementById('seeder-filename');
-    const seederFilesize = document.getElementById('seeder-filesize');
-    const seederChunksSent = document.getElementById('seeder-chunks-sent');
-    const seederProgressFill = document.getElementById('seeder-progress-fill');
-    const seederProgressText = document.getElementById('seeder-progress-text');
-    const seederSpeed = document.getElementById('seeder-speed');
-    const seederPeers = document.getElementById('seeder-peers');
-    const seederDot = document.getElementById('seeder-dot');
-    const seederStatusText = document.getElementById('seeder-status-text');
-    const fileSelectGroup = document.getElementById('file-select-group');
-    const seederVideoCheck = document.getElementById('seeder-video-check');
-    const btnBrowse = document.getElementById('btn-browse');
-
-    if (btnBrowse) btnBrowse.addEventListener('click', () => fileInput.click());
-
-    fileSelectGroup.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        fileSelectGroup.classList.add('dragover');
-    });
-
-    fileSelectGroup.addEventListener('dragleave', (e) => {
-        e.preventDefault();
-        fileSelectGroup.classList.remove('dragover');
-    });
-
-    fileSelectGroup.addEventListener('drop', (e) => {
-        e.preventDefault();
-        fileSelectGroup.classList.remove('dragover');
-        if (e.dataTransfer.files.length) {
-            fileInput.files = e.dataTransfer.files;
-            fileInput.dispatchEvent(new Event('change'));
-        }
-    });
-
-    // Leecher UI
-    const joinCodeInput = document.getElementById('join-code');
-    const btnJoinRoom = document.getElementById('btn-join-room');
-    const joinGroup = document.getElementById('join-group');
-    const leecherActive = document.getElementById('leecher-active');
-    const leecherFilename = document.getElementById('leecher-filename');
-    const leecherFilesize = document.getElementById('leecher-filesize');
-    const leecherChunksText = document.getElementById('leecher-chunks');
-    const leecherSpeed = document.getElementById('leecher-speed');
-    const leecherEta = document.getElementById('leecher-eta');
-    const leecherProgressFill = document.getElementById('leecher-progress-fill');
-    const leecherProgressText = document.getElementById('leecher-progress-text');
-    const leecherDot = document.getElementById('leecher-dot');
-    const leecherStatusText = document.getElementById('leecher-status-text');
-    const leecherPieceMap = document.getElementById('leecher-piece-map');
-    const btnSaveFile = document.getElementById('btn-save-file');
-    const leecherVideoCheck = document.getElementById('leecher-video-check');
-
-    // Video UI
-    const videoUi = document.getElementById('video-ui');
-    const localVideo = document.getElementById('local-video');
-    const remoteVideo = document.getElementById('remote-video');
-
-    // Global States
-    let selectedFile = null;
-    let fileChunks = []; 
-    let roomCode = null;
-    let isSeeder = false;
-    let myRole = null; 
-    let localStream = null;
-    
-    const peerConnections = new Map();
-    const dataChannels = new Map();
-    
-    let leecherPC = null;
-    let leecherDC = null;
-
-    let receiveBuffer = [];
-    let receivedChunksCount = 0;
-    let totalExpectedChunks = 0;
-    let incomingFileInfo = null;
-
-    let bytesTransferredLastInterval = 0;
-    let sparklineHistory = [];
-    const maxSparklinePoints = 30;
-
-    // Helpers
-    function formatBytes(bytes) {
-        if (!+bytes) return '0 Bytes';
-        const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
-    }
-
-    async function hashChunkBuffer(buffer) {
-        const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    }
-
-    function generateRoomCode() {
-        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let result = '';
-        for (let i = 0; i < 6; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
-        return result;
-    }
-
-    // Camera Init
-    async function initCameraIfNeeded(role) {
-        const checkbox = role === 'seeder' ? seederVideoCheck : leecherVideoCheck;
-        if (checkbox.checked) {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                localVideo.srcObject = localStream;
-                videoUi.classList.remove('hidden');
-            } catch (err) {
-                console.error("Failed to access camera", err);
-                alert("Could not access camera/microphone. Continuing with file transfer only.");
-            }
-        }
-    }
-
-    // RTCPeerConnection Helper
-    function addTracksToPC(pc) {
-        if (localStream) {
-            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-        }
-        pc.ontrack = (event) => {
-            if (remoteVideo.srcObject !== event.streams[0]) {
-                remoteVideo.srcObject = event.streams[0];
-                videoUi.classList.remove('hidden');
-            }
-        };
-    }
-
     const socket = io(window.location.origin);
+    
+    // State
+    let selectedMode = 'files'; // default
+    let isHost = false;
+    let roomCode = null;
+    let pc = null;
+    let dc = null;
+    
+    // Lobby UI
+    const modeCards = document.querySelectorAll('.mode-card');
+    const btnCreate = document.getElementById('btn-create');
+    const inputJoin = document.getElementById('input-join');
+    const btnJoin = document.getElementById('btn-join');
+    const setupMsg = document.getElementById('setup-msg');
+    
+    // Room UI
+    const lobbyUi = document.getElementById('lobby-ui');
+    const roomUi = document.getElementById('room-ui');
+    const hdrMode = document.getElementById('hdr-mode');
+    const hdrCode = document.getElementById('hdr-code');
+    const statusDot = document.getElementById('status-dot');
+    const statusText = document.getElementById('status-text');
 
-    // Speed & Sparkline Timer
-    for(let i=0; i<maxSparklinePoints; i++) sparklineHistory.push(0);
-    setInterval(() => {
-        const speedMBps = bytesTransferredLastInterval / (1024 * 1024);
-        sparklineHistory.push(speedMBps);
-        if (sparklineHistory.length > maxSparklinePoints) sparklineHistory.shift();
-        
-        const maxSpeed = Math.max(...sparklineHistory, 0.1);
-        
-        const updateSparklineDOM = (containerId) => {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-            sparklineHistory.forEach(speed => {
-                const height = (speed / maxSpeed) * 100;
-                const bar = document.createElement('div');
-                bar.className = 'spark-bar';
-                bar.style.height = `${height}%`;
-                container.appendChild(bar);
-            });
-        };
-
-        if (myRole === 'seeder') {
-            seederSpeed.textContent = `${speedMBps.toFixed(2)} MB/s`;
-            updateSparklineDOM('seeder-sparkline');
-        } else if (myRole === 'leecher') {
-            leecherSpeed.textContent = `${speedMBps.toFixed(2)} MB/s`;
-            updateSparklineDOM('leecher-sparkline');
-            
-            if (speedMBps > 0 && incomingFileInfo) {
-                const bytesRemaining = incomingFileInfo.size - (receivedChunksCount * CHUNK_SIZE);
-                const secondsRemaining = bytesRemaining / bytesTransferredLastInterval;
-                if (secondsRemaining > 0 && isFinite(secondsRemaining)) {
-                    const m = Math.floor(secondsRemaining / 60);
-                    const s = Math.floor(secondsRemaining % 60);
-                    leecherEta.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-                } else {
-                    leecherEta.textContent = '00:00';
-                }
-            }
-        }
-        bytesTransferredLastInterval = 0;
-    }, 1000);
-
-    // ================= SEEDER =================
-
-    fileInput.addEventListener('change', async (e) => {
-        selectedFile = e.target.files[0];
-        if (selectedFile) {
-            btnCreateRoom.disabled = true;
-            if (selectedFile.size > 500 * 1024 * 1024) {
-                fileWarning.textContent = "Warning: Files > 500MB might exceed memory limitations. Processing...";
-            } else {
-                fileWarning.textContent = "Processing file... computing hashes...";
-            }
-            
-            await new Promise(r => setTimeout(r, 50)); 
-            
-            fileChunks = [];
-            const totalChunks = Math.ceil(selectedFile.size / CHUNK_SIZE);
-            
-            for (let i = 0; i < totalChunks; i++) {
-                const start = i * CHUNK_SIZE;
-                const end = Math.min(selectedFile.size, start + CHUNK_SIZE);
-                const chunkBlob = selectedFile.slice(start, end);
-                const arrayBuffer = await chunkBlob.arrayBuffer();
-                const hash = await hashChunkBuffer(arrayBuffer);
-                
-                fileChunks.push({ index: i, buffer: arrayBuffer, hash: hash });
-                
-                if (i % 200 === 0) {
-                   fileWarning.textContent = `Processing file... ${Math.round((i/totalChunks)*100)}% hashed`;
-                   await new Promise(r => setTimeout(r, 0));
-                }
-            }
-            
-            fileWarning.textContent = "File hashed and ready.";
-            btnCreateRoom.disabled = false;
-        } else {
-            btnCreateRoom.disabled = true;
-        }
-    });
-
-    btnCreateRoom.addEventListener('click', async () => {
-        myRole = 'seeder';
-        isSeeder = true;
-        
-        btnCreateRoom.textContent = "Loading...";
-        await initCameraIfNeeded('seeder');
-
-        roomCode = generateRoomCode();
-        fileSelectGroup.classList.add('hidden');
-        seederActive.classList.remove('hidden');
-        displayRoomCode.textContent = roomCode;
-        seederFilename.textContent = selectedFile.name;
-        seederFilesize.textContent = formatBytes(selectedFile.size);
-        seederChunksSent.textContent = `0 / ${fileChunks.length}`;
-
-        socket.emit('join-room', roomCode);
-    });
-
-    socket.on('leecher-joined', async (leecherId) => {
-        if (!isSeeder) return;
-        seederDot.classList.add('connected');
-        seederStatusText.textContent = 'Connected (Sending)';
-        seederPeers.textContent = parseInt(seederPeers.textContent) + 1;
-
-        const pc = new RTCPeerConnection({
-            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+    // MODE SELECTION
+    modeCards.forEach(card => {
+        card.addEventListener('click', () => {
+            modeCards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            selectedMode = card.getAttribute('data-mode');
         });
-        peerConnections.set(leecherId, pc);
+    });
 
-        // Add Video & Audio tracks
-        addTracksToPC(pc);
+    inputJoin.addEventListener('input', (e) => { btnJoin.disabled = e.target.value.length !== 6; });
 
-        const dc = pc.createDataChannel('fileTransfer', { ordered: true });
-        dataChannels.set(leecherId, dc);
+    function genCode() {
+        const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let res = ''; for(let i=0; i<6; i++) res += c.charAt(Math.floor(Math.random()*c.length));
+        return res;
+    }
 
-        setupDataChannelForSeeder(dc, leecherId);
+    // ACTIVATE MODE UI
+    async function activateModeUI(mode) {
+        document.querySelectorAll('.app-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(`app-${mode}`).classList.add('active');
+        hdrMode.textContent = mode;
+        hdrCode.textContent = roomCode;
+        lobbyUi.classList.add('hidden');
+        roomUi.classList.remove('hidden');
 
-        pc.onicecandidate = (event) => {
-            if (event.candidate) socket.emit('ice-candidate', roomCode, event.candidate, leecherId);
-        };
+        if (mode === 'video') await startVideo();
+        if (mode === 'game') initGameUI();
+    }
+
+    btnCreate.addEventListener('click', () => {
+        isHost = true;
+        roomCode = genCode();
+        btnCreate.disabled = true; btnJoin.disabled = true;
+        setupMsg.textContent = "Creating room...";
+        socket.emit('join-room', roomCode, selectedMode);
+    });
+
+    btnJoin.addEventListener('click', () => {
+        isHost = false;
+        roomCode = inputJoin.value.toUpperCase();
+        btnCreate.disabled = true; btnJoin.disabled = true;
+        setupMsg.textContent = "Joining room...";
+        socket.emit('join-room', roomCode, null); // Guest inherits mode from host
+    });
+
+    // SIGNALING
+    socket.on('room-created', (code, mode) => {
+        activateModeUI(mode);
+    });
+
+    socket.on('room-joined', (code, mode) => {
+        selectedMode = mode; // Host dictates mode!
+        activateModeUI(mode);
+        statusText.textContent = "Connecting to peer...";
+    });
+
+    socket.on('guest-joined', async (guestId) => {
+        if (!isHost) return;
+        statusDot.classList.add('connected');
+        statusText.textContent = "Peer connected! Establishing P2P...";
+        
+        pc = createPeerConnection(guestId);
+        dc = pc.createDataChannel('p2p', { ordered: true });
+        setupDataChannel(dc);
 
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
-        socket.emit('offer', roomCode, offer, leecherId);
+        socket.emit('offer', roomCode, offer, guestId);
     });
 
-    socket.on('answer', async (sdp, targetId) => {
-        if (isSeeder) {
-            const pc = peerConnections.get(targetId);
-            if (pc) await pc.setRemoteDescription(new RTCSessionDescription(sdp));
-        } else {
-            if (leecherPC) await leecherPC.setRemoteDescription(new RTCSessionDescription(sdp));
+    socket.on('offer', async (sdp, hostId) => {
+        if (isHost) return;
+        statusDot.classList.add('connected');
+        statusText.textContent = "Receiving connection...";
+        
+        pc = createPeerConnection(hostId);
+        pc.ondatachannel = (e) => { dc = e.channel; setupDataChannel(dc); };
+
+        await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        socket.emit('answer', roomCode, answer, hostId);
+    });
+
+    socket.on('answer', async sdp => { if(pc) await pc.setRemoteDescription(new RTCSessionDescription(sdp)); });
+    socket.on('ice-candidate', async c => { if(pc) await pc.addIceCandidate(new RTCIceCandidate(c)); });
+
+    socket.on('peer-disconnected', () => {
+        statusDot.classList.remove('connected');
+        statusText.textContent = "Peer Disconnected.";
+        if(selectedMode === 'chat') { chatInput.disabled = true; btnSendChat.disabled = true; }
+        if(selectedMode === 'game') { gameActive = false; }
+    });
+
+    function createPeerConnection(targetId) {
+        const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+        if (selectedMode === 'video' && localStream) {
+            localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
         }
-    });
+        pc.ontrack = (e) => {
+            const rv = document.getElementById('remote-video');
+            if (rv.srcObject !== e.streams[0]) rv.srcObject = e.streams[0];
+        };
+        pc.onicecandidate = (e) => { if (e.candidate) socket.emit('ice-candidate', roomCode, e.candidate, targetId); };
+        return pc;
+    }
 
-    socket.on('ice-candidate', async (candidate, targetId) => {
-        if (isSeeder) {
-            const pc = peerConnections.get(targetId);
-            if (pc) await pc.addIceCandidate(new RTCIceCandidate(candidate));
-        } else {
-            if (leecherPC) await leecherPC.addIceCandidate(new RTCIceCandidate(candidate));
-        }
-    });
-
-    socket.on('leecher-disconnected', (leecherId) => {
-        if (!isSeeder) return;
-        seederPeers.textContent = Math.max(0, parseInt(seederPeers.textContent) - 1);
-        if (parseInt(seederPeers.textContent) === 0) {
-            seederStatusText.textContent = 'Waiting for leecher...';
-            seederDot.classList.remove('connected');
-        }
-    });
-
-    function setupDataChannelForSeeder(dc, leecherId) {
-        dc.binaryType = 'arraybuffer';
-        dc.onopen = () => {
-            dc.send(JSON.stringify({
-                type: 'metadata',
-                name: selectedFile.name,
-                size: selectedFile.size,
-                typeStr: selectedFile.type,
-                totalChunks: fileChunks.length
-            }));
+    function setupDataChannel(channel) {
+        channel.binaryType = 'arraybuffer';
+        channel.onopen = () => {
+            statusText.textContent = "Secure P2P Connected!";
+            if (selectedMode === 'chat') { chatInput.disabled = false; btnSendChat.disabled = false; }
+            if (selectedMode === 'game') startGame();
         };
 
-        dc.onmessage = (e) => {
-            if (e.data === 'ready') sendFileChunks(dc);
+        channel.onmessage = async (e) => {
+            if (selectedMode === 'files') await handleFilMessage(e.data);
+            if (selectedMode === 'chat') handleChatMessage(e.data);
+            if (selectedMode === 'game') handleGameMessage(e.data);
         };
     }
 
-    async function sendFileChunks(dc) {
-        let currentChunk = 0;
+    // ==========================================
+    // APP 1: FILES
+    // ==========================================
+    const CHUNK_SIZE = 16384;
+    let fileChunks = [];
+    let receiveBuffer = [];
+    let receivedChunksCount = 0;
+    let incomingFileInfo = null;
 
-        function sendNext() {
-            if (currentChunk >= fileChunks.length) return;
-
-            if (dc.bufferedAmount > dc.bufferedAmountLowThreshold) {
-                dc.onbufferedamountlow = () => {
-                    dc.onbufferedamountlow = null;
-                    sendNext();
-                };
-                return;
-            }
-
-            const chunk = fileChunks[currentChunk];
-            const encoder = new TextEncoder();
-            const hashBytes = encoder.encode(chunk.hash);
-            const msgLen = 4 + 64 + chunk.buffer.byteLength;
-            
-            const buffer = new ArrayBuffer(msgLen);
-            const view = new DataView(buffer);
-            const uint8View = new Uint8Array(buffer);
-
-            view.setUint32(0, chunk.index, true);
-            uint8View.set(hashBytes, 4);
-            uint8View.set(new Uint8Array(chunk.buffer), 68);
-
-            dc.send(buffer);
-            bytesTransferredLastInterval += chunk.buffer.byteLength;
-
-            currentChunk++;
-            
-            seederChunksSent.textContent = `${currentChunk} / ${fileChunks.length}`;
-            const progress = (currentChunk / fileChunks.length) * 100;
-            seederProgressFill.style.width = `${progress}%`;
-            seederProgressText.textContent = `${Math.round(progress)}%`;
-
-            setTimeout(sendNext, 0);
-        }
-
-        dc.bufferedAmountLowThreshold = 65536; // 64KB
-        sendNext();
-    }
-
-    // ================= LEECHER =================
+    const fileInput = document.getElementById('file-input');
+    const dropzone = document.getElementById('dropzone');
     
-    joinCodeInput.addEventListener('input', (e) => {
-        btnJoinRoom.disabled = e.target.value.length !== 6;
-    });
+    document.getElementById('btn-browse').onclick = () => fileInput.click();
+    dropzone.ondragover = e => { e.preventDefault(); dropzone.classList.add('dragover'); };
+    dropzone.ondragleave = e => { e.preventDefault(); dropzone.classList.remove('dragover'); };
+    dropzone.ondrop = e => {
+        e.preventDefault(); dropzone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) startFileSend(e.dataTransfer.files[0]);
+    };
+    fileInput.onchange = e => { if(e.target.files.length) startFileSend(e.target.files[0]); };
 
-    btnJoinRoom.addEventListener('click', async () => {
-        myRole = 'leecher';
-        roomCode = joinCodeInput.value.toUpperCase();
+    async function hashBuffer(buffer) {
+        const h = await crypto.subtle.digest('SHA-256', buffer);
+        return Array.from(new Uint8Array(h)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
+    async function startFileSend(file) {
+        if (!dc || dc.readyState !== 'open') return alert("Wait for peer to connect!");
         
-        btnJoinRoom.textContent = "Loading...";
-        await initCameraIfNeeded('leecher');
-
-        joinGroup.classList.add('hidden');
-        leecherActive.classList.remove('hidden');
-        leecherStatusText.textContent = 'Connecting to signaling server...';
-
-        socket.emit('join-room', roomCode);
-    });
-
-    socket.on('offer', async (sdp, seederId) => {
-        if (myRole !== 'leecher') return;
-        leecherStatusText.textContent = 'Found seeder, establishing P2P...';
-
-        leecherPC = new RTCPeerConnection({
-            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-        });
-
-        // Add Video & Audio tracks
-        addTracksToPC(leecherPC);
-
-        leecherPC.ondatachannel = (event) => {
-            leecherDC = event.channel;
-            setupDataChannelForLeecher(leecherDC);
-        };
-
-        leecherPC.onicecandidate = (event) => {
-            if (event.candidate) socket.emit('ice-candidate', roomCode, event.candidate, seederId);
-        };
-
-        await leecherPC.setRemoteDescription(new RTCSessionDescription(sdp));
-        const answer = await leecherPC.createAnswer();
-        await leecherPC.setLocalDescription(answer);
-        socket.emit('answer', roomCode, answer, seederId);
-    });
-
-    socket.on('seeder-disconnected', () => {
-        if (myRole === 'leecher' && totalExpectedChunks > 0 && receivedChunksCount < totalExpectedChunks) {
-            leecherStatusText.textContent = 'Error: Seeder disconnected!';
-            leecherDot.classList.remove('connected');
+        document.getElementById('send-status').classList.remove('hidden');
+        document.getElementById('send-name').textContent = file.name;
+        document.getElementById('send-text').textContent = "Hashing...";
+        await new Promise(r => setTimeout(r, 50));
+        
+        fileChunks = [];
+        const total = Math.ceil(file.size / CHUNK_SIZE);
+        for(let i=0; i<total; i++) {
+            const buf = await file.slice(i*CHUNK_SIZE, Math.min(file.size, (i+1)*CHUNK_SIZE)).arrayBuffer();
+            fileChunks.push({ index: i, buffer: buf, hash: await hashBuffer(buf) });
         }
+
+        dc.send(JSON.stringify({ type: 'file_meta', name: file.name, size: file.size, typeStr: file.type, total: total }));
+        document.getElementById('send-text').textContent = "Requesting transfer...";
+    }
+
+    async function handleFilMessage(data) {
+        if (typeof data === 'string') {
+            const msg = JSON.parse(data);
+            if (msg.type === 'file_meta') {
+                incomingFileInfo = msg; receiveBuffer = new Array(msg.total); receivedChunksCount = 0;
+                document.getElementById('recv-status').classList.remove('hidden');
+                document.getElementById('btn-save-file').classList.add('hidden');
+                document.getElementById('recv-name').textContent = msg.name;
+                dc.send(JSON.stringify({ type: 'file_ready' }));
+            }
+            if (msg.type === 'file_ready') streamFileChunks();
+        } else if (data instanceof ArrayBuffer) {
+            const v = new DataView(data); const index = v.getUint32(0, true);
+            const dataBuffer = data.slice(68);
+            receiveBuffer[index] = dataBuffer;
+            receivedChunksCount++;
+
+            const pct = (receivedChunksCount / incomingFileInfo.total) * 100;
+            document.getElementById('recv-fill').style.width = pct + '%';
+            document.getElementById('recv-text').textContent = Math.round(pct) + '%';
+
+            if (receivedChunksCount === incomingFileInfo.total) {
+                document.getElementById('recv-text').textContent = '100% Complete!';
+                document.getElementById('btn-save-file').classList.remove('hidden');
+                document.getElementById('btn-save-file').onclick = () => {
+                    const blob = new Blob(receiveBuffer, { type: incomingFileInfo.typeStr });
+                    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = incomingFileInfo.name; a.click();
+                };
+            }
+        }
+    }
+
+    function streamFileChunks() {
+        let curr = 0;
+        function next() {
+            if (curr >= fileChunks.length) { document.getElementById('send-text').textContent = "Done!"; return; }
+            if (dc.bufferedAmount > 65536) { dc.onbufferedamountlow = () => { dc.onbufferedamountlow=null; next(); }; return; }
+
+            const c = fileChunks[curr];
+            const buf = new ArrayBuffer(4 + 64 + c.buffer.byteLength);
+            const v = new DataView(buf); const u8 = new Uint8Array(buf);
+            v.setUint32(0, c.index, true);
+            u8.set(new TextEncoder().encode(c.hash), 4);
+            u8.set(new Uint8Array(c.buffer), 68);
+            dc.send(buf);
+            curr++;
+
+            const pct = (curr/fileChunks.length)*100;
+            document.getElementById('send-fill').style.width = pct+'%';
+            document.getElementById('send-text').textContent = Math.round(pct)+'%';
+            setTimeout(next, 0);
+        }
+        next();
+    }
+
+    // ==========================================
+    // APP 2: VIDEO
+    // ==========================================
+    let localStream;
+    async function startVideo() {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({video:true, audio:true});
+            document.getElementById('local-video').srcObject = localStream;
+            if(pc) localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+        } catch(e) { alert("Camera access denied."); }
+    }
+
+    // ==========================================
+    // APP 3: CHAT
+    // ==========================================
+    const chatInput = document.getElementById('chat-input');
+    const btnSendChat = document.getElementById('btn-send-chat');
+    const chatLog = document.getElementById('chat-log');
+    
+    function sendChat() {
+        const text = chatInput.value.trim();
+        if (text && dc) { dc.send(JSON.stringify({ type: 'chat_msg', text })); addChat(text, true); chatInput.value = ''; }
+    }
+    btnSendChat.onclick = sendChat; chatInput.onkeypress = e => { if(e.key==='Enter') sendChat(); };
+    function handleChatMessage(data) {
+        if(typeof data === 'string') { const msg = JSON.parse(data); if(msg.type==='chat_msg') addChat(msg.text, false); }
+    }
+    function addChat(txt, me) {
+        const d = document.createElement('div'); d.className=`chat-msg ${me?'msg-me':'msg-them'}`;
+        d.textContent = txt; chatLog.appendChild(d); chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    // ==========================================
+    // APP 4: GAME
+    // ==========================================
+    let bState, mySym, currTurn, gameActive;
+    const cells = document.querySelectorAll('.cell');
+    const statusGame = document.getElementById('game-status');
+    const btnRestart = document.getElementById('btn-restart');
+
+    function initGameUI() {
+        mySym = isHost ? 'X' : 'O';
+        document.getElementById('game-symbol').textContent = mySym;
+    }
+
+    function startGame() {
+        bState = Array(9).fill(null); currTurn = 'X'; gameActive = true;
+        btnRestart.classList.add('hidden'); renderBoard(); updateGame();
+    }
+
+    cells.forEach(c => c.onclick = () => {
+        const i = parseInt(c.dataset.index);
+        if(!gameActive || bState[i] || currTurn !== mySym) return;
+        bState[i] = mySym; currTurn = mySym==='X'?'O':'X';
+        renderBoard(); dc.send(JSON.stringify({type:'game_move', index:i}));
+        checkWin(); updateGame();
     });
 
-    function setupDataChannelForLeecher(dc) {
-        dc.binaryType = 'arraybuffer';
-        
-        dc.onopen = () => {
-            leecherDot.classList.add('connected');
-            leecherStatusText.textContent = 'Secure P2P connected. Starting...';
-        };
-
-        dc.onmessage = async (e) => {
-            if (typeof e.data === 'string') {
-                const msg = JSON.parse(e.data);
-                if (msg.type === 'metadata') {
-                    incomingFileInfo = msg;
-                    totalExpectedChunks = msg.totalChunks;
-                    receiveBuffer = new Array(totalExpectedChunks);
-                    
-                    leecherFilename.textContent = msg.name;
-                    leecherFilesize.textContent = formatBytes(msg.size);
-                    leecherChunksText.textContent = `0 / ${totalExpectedChunks}`;
-                    leecherStatusText.textContent = 'Downloading...';
-
-                    leecherPieceMap.innerHTML = '';
-                    const piecesToShow = Math.min(totalExpectedChunks, 1000); 
-                    for(let i=0; i<piecesToShow; i++) {
-                        const p = document.createElement('div');
-                        p.className = 'piece';
-                        p.id = `piece-${i}`;
-                        leecherPieceMap.appendChild(p);
-                    }
-                    dc.send('ready');
-                }
-            } else if (e.data instanceof ArrayBuffer) {
-                const view = new DataView(e.data);
-                const index = view.getUint32(0, true);
-                
-                const uint8View = new Uint8Array(e.data);
-                const hashBytes = uint8View.slice(4, 68);
-                const decoder = new TextDecoder();
-                const expectedHash = decoder.decode(hashBytes);
-                
-                const dataBuffer = e.data.slice(68);
-
-                const actualHash = await hashChunkBuffer(dataBuffer);
-                if (actualHash === expectedHash) {
-                    receiveBuffer[index] = dataBuffer;
-                    receivedChunksCount++;
-                    bytesTransferredLastInterval += dataBuffer.byteLength;
-
-                    leecherChunksText.textContent = `${receivedChunksCount} / ${totalExpectedChunks}`;
-                    const progress = (receivedChunksCount / totalExpectedChunks) * 100;
-                    leecherProgressFill.style.width = `${progress}%`;
-                    leecherProgressText.textContent = `${Math.round(progress)}%`;
-
-                    const piecesToShow = Math.min(totalExpectedChunks, 1000);
-                    const pieceIndex = Math.floor((index / totalExpectedChunks) * piecesToShow);
-                    const pDOM = document.getElementById(`piece-${pieceIndex}`);
-                    if (pDOM) pDOM.classList.add('have');
-
-                    if (receivedChunksCount === totalExpectedChunks) {
-                        finishDownload();
-                    }
-                } else {
-                    console.error(`Hash mismatch at index ${index}`);
-                    leecherStatusText.textContent = `Hash Mismatch at chunk ${index}! Corrupted.`;
-                }
-            }
-        };
+    function handleGameMessage(data) {
+        if(typeof data === 'string') {
+            const m = JSON.parse(data);
+            if(m.type==='game_move') { bState[m.index] = mySym==='X'?'O':'X'; currTurn = mySym; renderBoard(); checkWin(); updateGame(); }
+            if(m.type==='game_restart') startGame();
+        }
     }
 
-    function finishDownload() {
-        const blob = new Blob(receiveBuffer, { type: incomingFileInfo.typeStr || 'application/octet-stream' });
-        const url = URL.createObjectURL(blob);
-        leecherStatusText.textContent = 'Download Complete! 100% Verified.';
-        leecherEta.textContent = '00:00';
-        leecherSpeed.textContent = '0.00 MB/s';
-        
-        btnSaveFile.classList.remove('hidden');
-        btnSaveFile.onclick = () => {
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = incomingFileInfo.name;
-            a.click();
-        };
+    function renderBoard() {
+        for(let i=0; i<9; i++) { cells[i].textContent = bState[i]||''; cells[i].className = `cell ${bState[i]?bState[i].toLowerCase():''}`; }
     }
+
+    function checkWin() {
+        const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+        for(let l of w) { const [a,b,c]=l; if(bState[a] && bState[a]===bState[b] && bState[a]===bState[c]) {
+            gameActive = false; statusGame.innerHTML = bState[a]===mySym ? `<span style="color:var(--accent-color)">You Won!</span>` : `<span style="color:var(--error-color)">You Lost!</span>`;
+            btnRestart.classList.remove('hidden'); return;
+        }}
+        if(!bState.includes(null)) { gameActive=false; statusGame.innerHTML=`<span style="color:var(--warning-color)">Draw!</span>`; btnRestart.classList.remove('hidden'); }
+    }
+    function updateGame() { if(gameActive) statusGame.textContent = currTurn===mySym ? "Your turn!" : "Waiting for peer..."; }
+    btnRestart.onclick = () => { dc.send(JSON.stringify({type:'game_restart'})); startGame(); };
 </script>
 
 </body>
