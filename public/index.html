@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDI 3 P2P File Sharing</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #3fb950;
+            --accent-color: #2ea043;
+            --border-color: #30363d;
+            --warning-color: #d29922;
+            --error-color: #f85149;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            display: flex;
+            gap: 40px;
+            flex: 1;
+        }
+
+        .panel {
+            flex: 1;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .panel-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input[type="file"], input[type="text"] {
+            font-family: inherit;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        input[type="text"] {
+            font-size: 1.5em;
+            text-align: center;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+
+        button {
+            font-family: inherit;
+            background: var(--accent-color);
+            color: #ffffff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        button:disabled {
+            background: var(--border-color);
+            color: #8b949e;
+            cursor: not-allowed;
+        }
+
+        .room-code-display {
+            font-size: 3em;
+            text-align: center;
+            letter-spacing: 10px;
+            margin: 20px 0;
+            color: #fff;
+            text-shadow: 0 0 10px var(--accent-color);
+        }
+
+        .stats {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-color);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 0.8em;
+            text-shadow: 1px 1px 2px black;
+        }
+
+        .piece-map {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            margin-top: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .piece {
+            width: 10px;
+            height: 10px;
+            background: var(--border-color);
+            border-radius: 2px;
+            transition: background 0.2s;
+        }
+
+        .piece.have {
+            background: var(--accent-color);
+        }
+
+        .sparkline {
+            width: 100%;
+            height: 50px;
+            border-bottom: 1px solid var(--border-color);
+            border-left: 1px solid var(--border-color);
+            margin-top: 15px;
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 2px;
+            gap: 2px;
+        }
+
+        .spark-bar {
+            flex: 1;
+            background: var(--accent-color);
+            min-height: 2px;
+            opacity: 0.8;
+            transition: height 0.2s;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--error-color);
+        }
+
+        .dot.connected {
+            background: var(--accent-color);
+            box-shadow: 0 0 8px var(--accent-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(46, 160, 67, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(46, 160, 67, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(46, 160, 67, 0); }
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: auto;
+            padding-top: 30px;
+            font-size: 0.8em;
+            color: #8b949e;
+        }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 800px) {
+            .container { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Peer-to-Peer Terminal</h1>
+
+<div class="container">
+    <!-- SEEDER PANEL -->
+    <div class="panel" id="seeder-panel">
+        <div class="panel-title">[ SEEDER ]</div>
+        
+        <div class="input-group" id="file-select-group">
+            <input type="file" id="file-input" />
+            <div id="file-warning" style="color: var(--warning-color); font-size: 0.8em; margin-top: 5px;"></div>
+            <button id="btn-create-room" disabled>Create Room</button>
+        </div>
+
+        <div id="seeder-active" class="hidden">
+            <div style="text-align: center; margin-bottom: 10px;">Share this room code:</div>
+            <div class="room-code-display" id="display-room-code">------</div>
+            
+            <div class="connection-status">
+                <div class="dot" id="seeder-dot"></div>
+                <span id="seeder-status-text">Waiting for leecher...</span>
+            </div>
+
+            <div class="stats">
+                <div class="stat-row"><span>File:</span> <span id="seeder-filename">-</span></div>
+                <div class="stat-row"><span>Size:</span> <span id="seeder-filesize">-</span></div>
+                <div class="stat-row"><span>Chunks To Send:</span> <span id="seeder-chunks-sent">0 / 0</span></div>
+                <div class="stat-row"><span>Peers:</span> <span id="seeder-peers">0</span></div>
+                <div class="stat-row"><span>Speed:</span> <span id="seeder-speed">0.00 MB/s</span></div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="seeder-progress-fill"></div>
+                <div class="progress-text" id="seeder-progress-text">0%</div>
+            </div>
+
+            <div class="sparkline" id="seeder-sparkline"></div>
+        </div>
+    </div>
+
+    <!-- LEECHER PANEL -->
+    <div class="panel" id="leecher-panel">
+        <div class="panel-title">[ LEECHER ]</div>
+        
+        <div class="input-group" id="join-group">
+            <input type="text" id="join-code" placeholder="ENTER 6-CHAR CODE" maxlength="6" />
+            <button id="btn-join-room" disabled>Connect & Download</button>
+        </div>
+
+        <div id="leecher-active" class="hidden">
+            <div class="connection-status">
+                <div class="dot" id="leecher-dot"></div>
+                <span id="leecher-status-text">Connecting to peer...</span>
+            </div>
+
+            <div class="stats">
+                <div class="stat-row"><span>File:</span> <span id="leecher-filename">-</span></div>
+                <div class="stat-row"><span>Size:</span> <span id="leecher-filesize">-</span></div>
+                <div class="stat-row"><span>Chunks:</span> <span id="leecher-chunks">0 / 0</span></div>
+                <div class="stat-row"><span>Speed:</span> <span id="leecher-speed">0.00 MB/s</span></div>
+                <div class="stat-row"><span>ETA:</span> <span id="leecher-eta">--:--</span></div>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="leecher-progress-fill"></div>
+                <div class="progress-text" id="leecher-progress-text">0%</div>
+            </div>
+
+            <div class="piece-map" id="leecher-piece-map"></div>
+
+            <div class="sparkline" id="leecher-sparkline"></div>
+
+            <button id="btn-save-file" class="hidden" style="margin-top: 20px; width: 100%;">Save File 💾</button>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    EDI 3 — Tushar · Sahil · Siddhesh · Prathmesh · Vishal
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const CHUNK_SIZE = 16384; // 16KB
+
+    // Seeder UI
+    const fileInput = document.getElementById('file-input');
+    const btnCreateRoom = document.getElementById('btn-create-room');
+    const fileWarning = document.getElementById('file-warning');
+    const seederActive = document.getElementById('seeder-active');
+    const displayRoomCode = document.getElementById('display-room-code');
+    const seederFilename = document.getElementById('seeder-filename');
+    const seederFilesize = document.getElementById('seeder-filesize');
+    const seederChunksSent = document.getElementById('seeder-chunks-sent');
+    const seederProgressFill = document.getElementById('seeder-progress-fill');
+    const seederProgressText = document.getElementById('seeder-progress-text');
+    const seederSpeed = document.getElementById('seeder-speed');
+    const seederPeers = document.getElementById('seeder-peers');
+    const seederDot = document.getElementById('seeder-dot');
+    const seederStatusText = document.getElementById('seeder-status-text');
+    const fileSelectGroup = document.getElementById('file-select-group');
+
+    // Leecher UI
+    const joinCodeInput = document.getElementById('join-code');
+    const btnJoinRoom = document.getElementById('btn-join-room');
+    const joinGroup = document.getElementById('join-group');
+    const leecherActive = document.getElementById('leecher-active');
+    const leecherFilename = document.getElementById('leecher-filename');
+    const leecherFilesize = document.getElementById('leecher-filesize');
+    const leecherChunksText = document.getElementById('leecher-chunks');
+    const leecherSpeed = document.getElementById('leecher-speed');
+    const leecherEta = document.getElementById('leecher-eta');
+    const leecherProgressFill = document.getElementById('leecher-progress-fill');
+    const leecherProgressText = document.getElementById('leecher-progress-text');
+    const leecherDot = document.getElementById('leecher-dot');
+    const leecherStatusText = document.getElementById('leecher-status-text');
+    const leecherPieceMap = document.getElementById('leecher-piece-map');
+    const btnSaveFile = document.getElementById('btn-save-file');
+
+    // Global States
+    let selectedFile = null;
+    let fileChunks = []; // Pre-computed chunks + hashes
+    let roomCode = null;
+    let isSeeder = false;
+    let myRole = null; 
+    
+    const peerConnections = new Map();
+    const dataChannels = new Map();
+    
+    let leecherPC = null;
+    let leecherDC = null;
+
+    let receiveBuffer = [];
+    let receivedChunksCount = 0;
+    let totalExpectedChunks = 0;
+    let incomingFileInfo = null;
+
+    let bytesTransferredLastInterval = 0;
+    let sparklineHistory = [];
+    const maxSparklinePoints = 30;
+
+    // Helpers
+    function formatBytes(bytes) {
+        if (!+bytes) return '0 Bytes';
+        const k = 1024, sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+    }
+
+    async function hashChunkBuffer(buffer) {
+        const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function generateRoomCode() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < 6; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+        return result;
+    }
+
+    const socket = io(window.location.origin);
+
+    // Speed & Sparkline Timer
+    for(let i=0; i<maxSparklinePoints; i++) sparklineHistory.push(0);
+    setInterval(() => {
+        const speedMBps = bytesTransferredLastInterval / (1024 * 1024);
+        sparklineHistory.push(speedMBps);
+        if (sparklineHistory.length > maxSparklinePoints) sparklineHistory.shift();
+        
+        const maxSpeed = Math.max(...sparklineHistory, 0.1);
+        
+        const updateSparklineDOM = (containerId) => {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            sparklineHistory.forEach(speed => {
+                const height = (speed / maxSpeed) * 100;
+                const bar = document.createElement('div');
+                bar.className = 'spark-bar';
+                bar.style.height = `${height}%`;
+                container.appendChild(bar);
+            });
+        };
+
+        if (myRole === 'seeder') {
+            seederSpeed.textContent = `${speedMBps.toFixed(2)} MB/s`;
+            updateSparklineDOM('seeder-sparkline');
+        } else if (myRole === 'leecher') {
+            leecherSpeed.textContent = `${speedMBps.toFixed(2)} MB/s`;
+            updateSparklineDOM('leecher-sparkline');
+            
+            if (speedMBps > 0 && incomingFileInfo) {
+                const bytesRemaining = incomingFileInfo.size - (receivedChunksCount * CHUNK_SIZE);
+                const secondsRemaining = bytesRemaining / bytesTransferredLastInterval;
+                if (secondsRemaining > 0 && isFinite(secondsRemaining)) {
+                    const m = Math.floor(secondsRemaining / 60);
+                    const s = Math.floor(secondsRemaining % 60);
+                    leecherEta.textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                } else {
+                    leecherEta.textContent = '00:00';
+                }
+            }
+        }
+        bytesTransferredLastInterval = 0;
+    }, 1000);
+
+    // ================= SEEDER =================
+
+    fileInput.addEventListener('change', async (e) => {
+        selectedFile = e.target.files[0];
+        if (selectedFile) {
+            btnCreateRoom.disabled = true;
+            if (selectedFile.size > 500 * 1024 * 1024) {
+                fileWarning.textContent = "Warning: Files > 500MB might exceed memory limitations. Processing...";
+            } else {
+                fileWarning.textContent = "Processing file... computing hashes...";
+            }
+            
+            // Wait a tick for UI update
+            await new Promise(r => setTimeout(r, 50)); 
+            
+            fileChunks = [];
+            const totalChunks = Math.ceil(selectedFile.size / CHUNK_SIZE);
+            
+            for (let i = 0; i < totalChunks; i++) {
+                const start = i * CHUNK_SIZE;
+                const end = Math.min(selectedFile.size, start + CHUNK_SIZE);
+                const chunkBlob = selectedFile.slice(start, end);
+                const arrayBuffer = await chunkBlob.arrayBuffer();
+                const hash = await hashChunkBuffer(arrayBuffer);
+                
+                fileChunks.push({
+                    index: i,
+                    buffer: arrayBuffer,
+                    hash: hash
+                });
+                
+                if (i % 200 === 0) {
+                   fileWarning.textContent = `Processing file... ${Math.round((i/totalChunks)*100)}% hashed`;
+                   await new Promise(r => setTimeout(r, 0));
+                }
+            }
+            
+            fileWarning.textContent = "File hashed and ready.";
+            btnCreateRoom.disabled = false;
+        } else {
+            btnCreateRoom.disabled = true;
+        }
+    });
+
+    btnCreateRoom.addEventListener('click', () => {
+        myRole = 'seeder';
+        roomCode = generateRoomCode();
+        isSeeder = true;
+
+        fileSelectGroup.classList.add('hidden');
+        seederActive.classList.remove('hidden');
+        displayRoomCode.textContent = roomCode;
+        seederFilename.textContent = selectedFile.name;
+        seederFilesize.textContent = formatBytes(selectedFile.size);
+        seederChunksSent.textContent = `0 / ${fileChunks.length}`;
+
+        socket.emit('join-room', roomCode);
+    });
+
+    socket.on('leecher-joined', async (leecherId) => {
+        if (!isSeeder) return;
+        seederDot.classList.add('connected');
+        seederStatusText.textContent = 'Connected (Sending)';
+        seederPeers.textContent = parseInt(seederPeers.textContent) + 1;
+
+        const pc = new RTCPeerConnection({
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        });
+        peerConnections.set(leecherId, pc);
+
+        const dc = pc.createDataChannel('fileTransfer', { ordered: true });
+        dataChannels.set(leecherId, dc);
+
+        setupDataChannelForSeeder(dc, leecherId);
+
+        pc.onicecandidate = (event) => {
+            if (event.candidate) socket.emit('ice-candidate', roomCode, event.candidate, leecherId);
+        };
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        socket.emit('offer', roomCode, offer, leecherId);
+    });
+
+    socket.on('answer', async (sdp, targetId) => {
+        if (isSeeder) {
+            const pc = peerConnections.get(targetId);
+            if (pc) await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+        } else {
+            if (leecherPC) await leecherPC.setRemoteDescription(new RTCSessionDescription(sdp));
+        }
+    });
+
+    socket.on('ice-candidate', async (candidate, targetId) => {
+        if (isSeeder) {
+            const pc = peerConnections.get(targetId);
+            if (pc) await pc.addIceCandidate(new RTCIceCandidate(candidate));
+        } else {
+            if (leecherPC) await leecherPC.addIceCandidate(new RTCIceCandidate(candidate));
+        }
+    });
+
+    socket.on('leecher-disconnected', (leecherId) => {
+        if (!isSeeder) return;
+        seederPeers.textContent = Math.max(0, parseInt(seederPeers.textContent) - 1);
+        if (parseInt(seederPeers.textContent) === 0) {
+            seederStatusText.textContent = 'Waiting for leecher...';
+            seederDot.classList.remove('connected');
+        }
+    });
+
+    function setupDataChannelForSeeder(dc, leecherId) {
+        dc.binaryType = 'arraybuffer';
+        dc.onopen = () => {
+            dc.send(JSON.stringify({
+                type: 'metadata',
+                name: selectedFile.name,
+                size: selectedFile.size,
+                typeStr: selectedFile.type,
+                totalChunks: fileChunks.length
+            }));
+        };
+
+        dc.onmessage = (e) => {
+            if (e.data === 'ready') sendFileChunks(dc);
+        };
+    }
+
+    async function sendFileChunks(dc) {
+        let currentChunk = 0;
+
+        function sendNext() {
+            if (currentChunk >= fileChunks.length) return;
+
+            if (dc.bufferedAmount > dc.bufferedAmountLowThreshold) {
+                dc.onbufferedamountlow = () => {
+                    dc.onbufferedamountlow = null;
+                    sendNext();
+                };
+                return;
+            }
+
+            const chunk = fileChunks[currentChunk];
+
+            // Pack index(4) + hash(64) + data
+            const encoder = new TextEncoder();
+            const hashBytes = encoder.encode(chunk.hash);
+            const msgLen = 4 + 64 + chunk.buffer.byteLength;
+            
+            const buffer = new ArrayBuffer(msgLen);
+            const view = new DataView(buffer);
+            const uint8View = new Uint8Array(buffer);
+
+            view.setUint32(0, chunk.index, true);
+            uint8View.set(hashBytes, 4);
+            uint8View.set(new Uint8Array(chunk.buffer), 68);
+
+            dc.send(buffer);
+            bytesTransferredLastInterval += chunk.buffer.byteLength;
+
+            currentChunk++;
+            
+            seederChunksSent.textContent = `${currentChunk} / ${fileChunks.length}`;
+            const progress = (currentChunk / fileChunks.length) * 100;
+            seederProgressFill.style.width = `${progress}%`;
+            seederProgressText.textContent = `${Math.round(progress)}%`;
+
+            setTimeout(sendNext, 0);
+        }
+
+        dc.bufferedAmountLowThreshold = 65536; // 64KB
+        sendNext();
+    }
+
+    // ================= LEECHER =================
+    
+    joinCodeInput.addEventListener('input', (e) => {
+        btnJoinRoom.disabled = e.target.value.length !== 6;
+    });
+
+    btnJoinRoom.addEventListener('click', () => {
+        myRole = 'leecher';
+        roomCode = joinCodeInput.value.toUpperCase();
+        
+        joinGroup.classList.add('hidden');
+        leecherActive.classList.remove('hidden');
+        leecherStatusText.textContent = 'Connecting to signaling server...';
+
+        socket.emit('join-room', roomCode);
+    });
+
+    socket.on('offer', async (sdp, seederId) => {
+        if (myRole !== 'leecher') return;
+        leecherStatusText.textContent = 'Found seeder, establishing P2P...';
+
+        leecherPC = new RTCPeerConnection({
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        });
+
+        leecherPC.ondatachannel = (event) => {
+            leecherDC = event.channel;
+            setupDataChannelForLeecher(leecherDC);
+        };
+
+        leecherPC.onicecandidate = (event) => {
+            if (event.candidate) socket.emit('ice-candidate', roomCode, event.candidate, seederId);
+        };
+
+        await leecherPC.setRemoteDescription(new RTCSessionDescription(sdp));
+        const answer = await leecherPC.createAnswer();
+        await leecherPC.setLocalDescription(answer);
+        socket.emit('answer', roomCode, answer, seederId);
+    });
+
+    socket.on('seeder-disconnected', () => {
+        if (myRole === 'leecher' && totalExpectedChunks > 0 && receivedChunksCount < totalExpectedChunks) {
+            leecherStatusText.textContent = 'Error: Seeder disconnected!';
+            leecherDot.classList.remove('connected');
+        }
+    });
+
+    function setupDataChannelForLeecher(dc) {
+        dc.binaryType = 'arraybuffer';
+        
+        dc.onopen = () => {
+            leecherDot.classList.add('connected');
+            leecherStatusText.textContent = 'Secure P2P connected. Starting...';
+        };
+
+        dc.onmessage = async (e) => {
+            if (typeof e.data === 'string') {
+                const msg = JSON.parse(e.data);
+                if (msg.type === 'metadata') {
+                    incomingFileInfo = msg;
+                    totalExpectedChunks = msg.totalChunks;
+                    receiveBuffer = new Array(totalExpectedChunks);
+                    
+                    leecherFilename.textContent = msg.name;
+                    leecherFilesize.textContent = formatBytes(msg.size);
+                    leecherChunksText.textContent = `0 / ${totalExpectedChunks}`;
+                    leecherStatusText.textContent = 'Downloading...';
+
+                    leecherPieceMap.innerHTML = '';
+                    const piecesToShow = Math.min(totalExpectedChunks, 1000); 
+                    for(let i=0; i<piecesToShow; i++) {
+                        const p = document.createElement('div');
+                        p.className = 'piece';
+                        p.id = `piece-${i}`;
+                        leecherPieceMap.appendChild(p);
+                    }
+                    dc.send('ready');
+                }
+            } else if (e.data instanceof ArrayBuffer) {
+                // Unpack binary message
+                const view = new DataView(e.data);
+                const index = view.getUint32(0, true);
+                
+                const uint8View = new Uint8Array(e.data);
+                const hashBytes = uint8View.slice(4, 68);
+                const decoder = new TextDecoder();
+                const expectedHash = decoder.decode(hashBytes);
+                
+                const dataBuffer = e.data.slice(68);
+
+                // Verify hash
+                const actualHash = await hashChunkBuffer(dataBuffer);
+                if (actualHash === expectedHash) {
+                    receiveBuffer[index] = dataBuffer;
+                    receivedChunksCount++;
+                    bytesTransferredLastInterval += dataBuffer.byteLength;
+
+                    leecherChunksText.textContent = `${receivedChunksCount} / ${totalExpectedChunks}`;
+                    const progress = (receivedChunksCount / totalExpectedChunks) * 100;
+                    leecherProgressFill.style.width = `${progress}%`;
+                    leecherProgressText.textContent = `${Math.round(progress)}%`;
+
+                    const piecesToShow = Math.min(totalExpectedChunks, 1000);
+                    const pieceIndex = Math.floor((index / totalExpectedChunks) * piecesToShow);
+                    const pDOM = document.getElementById(`piece-${pieceIndex}`);
+                    if (pDOM) pDOM.classList.add('have');
+
+                    if (receivedChunksCount === totalExpectedChunks) {
+                        finishDownload();
+                    }
+                } else {
+                    console.error(`Hash mismatch at index ${index}`);
+                    leecherStatusText.textContent = `Hash Mismatch at chunk ${index}! Corrupted.`;
+                }
+            }
+        };
+    }
+
+    function finishDownload() {
+        const blob = new Blob(receiveBuffer, { type: incomingFileInfo.typeStr || 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        leecherStatusText.textContent = 'Download Complete! 100% Verified.';
+        leecherEta.textContent = '00:00';
+        leecherSpeed.textContent = '0.00 MB/s';
+        
+        btnSaveFile.classList.remove('hidden');
+        btnSaveFile.onclick = () => {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = incomingFileInfo.name;
+            a.click();
+        };
+    }
+</script>
+
+</body>
+</html>
