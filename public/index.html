@@ -279,6 +279,16 @@
 <script>
     const socket = io(window.location.origin);
     
+    // Connection Status handling
+    socket.on('connect', () => {
+        document.getElementById('setup-msg').textContent = "Server Connected! Ready to create room.";
+    });
+    socket.on('connect_error', () => {
+        document.getElementById('setup-msg').textContent = "Server Connection Failed! Are you on Cloudflare? Ensure your backend URL is correct!";
+        document.getElementById('btn-create').disabled = true;
+        document.getElementById('btn-join').disabled = true;
+    });
+
     // State
     let selectedMode = 'files'; // default
     let isHost = false;
@@ -349,12 +359,14 @@
 
     // SIGNALING
     socket.on('room-created', (code, mode) => {
-        activateModeUI(mode);
+        setupMsg.textContent = "Room Created!";
+        activateModeUI(mode || selectedMode || 'files');
     });
 
     socket.on('room-joined', (code, mode) => {
-        selectedMode = mode; // Host dictates mode!
-        activateModeUI(mode);
+        selectedMode = mode || 'files'; // Host dictates mode!
+        setupMsg.textContent = "Room Joined!";
+        activateModeUI(selectedMode);
         statusText.textContent = "Connecting to peer...";
     });
 
