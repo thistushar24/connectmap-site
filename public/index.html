@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EDI 3 P2P File Sharing</title>
+    <title>EDI 3 P2P File Sharing & Video Call</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -222,6 +222,42 @@
             100% { box-shadow: 0 0 0 0 rgba(46, 160, 67, 0); }
         }
 
+        .video-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .video-box {
+            position: relative;
+            width: 50%;
+            aspect-ratio: 4/3;
+            background: #000;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .video-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* mirror effect */
+        }
+
+        .video-label {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            background: rgba(0,0,0,0.7);
+            padding: 2px 5px;
+            font-size: 0.7em;
+            border-radius: 4px;
+            color: #fff;
+            z-index: 10;
+        }
+
         .footer {
             text-align: center;
             margin-top: auto;
@@ -239,7 +275,19 @@
 </head>
 <body>
 
-<h1>Peer-to-Peer Terminal</h1>
+<h1>Peer-to-Peer Terminal & Video</h1>
+
+<!-- VIDEO CALL UI -->
+<div class="video-container hidden" id="video-ui">
+    <div class="video-box">
+        <video id="local-video" autoplay muted playsinline></video>
+        <div class="video-label">YOU</div>
+    </div>
+    <div class="video-box">
+        <video id="remote-video" autoplay playsinline></video>
+        <div class="video-label">PEER</div>
+    </div>
+</div>
 
 <div class="container">
     <!-- SEEDER PANEL -->
@@ -249,6 +297,11 @@
         <div class="input-group" id="file-select-group">
             <input type="file" id="file-input" />
             <div id="file-warning" style="color: var(--warning-color); font-size: 0.8em; margin-top: 5px;"></div>
+            
+            <label style="cursor: pointer; margin-top: 10px; font-weight: bold;">
+                <input type="checkbox" id="seeder-video-check"> 🎥 Enable Camera & Mic
+            </label>
+
             <button id="btn-create-room" disabled>Create Room</button>
         </div>
 
@@ -284,6 +337,11 @@
         
         <div class="input-group" id="join-group">
             <input type="text" id="join-code" placeholder="ENTER 6-CHAR CODE" maxlength="6" />
+            
+            <label style="cursor: pointer; margin-top: 10px; font-weight: bold;">
+                <input type="checkbox" id="leecher-video-check"> 🎥 Enable Camera & Mic
+            </label>
+
             <button id="btn-join-room" disabled>Connect & Download</button>
         </div>
 
@@ -339,6 +397,7 @@
     const seederDot = document.getElementById('seeder-dot');
     const seederStatusText = document.getElementById('seeder-status-text');
     const fileSelectGroup = document.getElementById('file-select-group');
+    const seederVideoCheck = document.getElementById('seeder-video-check');
 
     // Leecher UI
     const joinCodeInput = document.getElementById('join-code');
@@ -356,13 +415,20 @@
     const leecherStatusText = document.getElementById('leecher-status-text');
     const leecherPieceMap = document.getElementById('leecher-piece-map');
     const btnSaveFile = document.getElementById('btn-save-file');
+    const leecherVideoCheck = document.getElementById('leecher-video-check');
+
+    // Video UI
+    const videoUi = document.getElementById('video-ui');
+    const localVideo = document.getElementById('local-video');
+    const remoteVideo = document.getElementById('remote-video');
 
     // Global States
     let selectedFile = null;
-    let fileChunks = []; // Pre-computed chunks + hashes
+    let fileChunks = []; 
     let roomCode = null;
     let isSeeder = false;
     let myRole = null; 
+    let localStream = null;
     
     const peerConnections = new Map();
     const dataChannels = new Map();
@@ -398,6 +464,34 @@
         let result = '';
         for (let i = 0; i < 6; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
         return result;
+    }
+
+    // Camera Init
+    async function initCameraIfNeeded(role) {
+        const checkbox = role === 'seeder' ? seederVideoCheck : leecherVideoCheck;
+        if (checkbox.checked) {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                localVideo.srcObject = localStream;
+                videoUi.classList.remove('hidden');
+            } catch (err) {
+                console.error("Failed to access camera", err);
+                alert("Could not access camera/microphone. Continuing with file transfer only.");
+            }
+        }
+    }
+
+    // RTCPeerConnection Helper
+    function addTracksToPC(pc) {
+        if (localStream) {
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+        }
+        pc.ontrack = (event) => {
+            if (remoteVideo.srcObject !== event.streams[0]) {
+                remoteVideo.srcObject = event.streams[0];
+                videoUi.classList.remove('hidden');
+            }
+        };
     }
 
     const socket = io(window.location.origin);
@@ -457,7 +551,6 @@
                 fileWarning.textContent = "Processing file... computing hashes...";
             }
             
-            // Wait a tick for UI update
             await new Promise(r => setTimeout(r, 50)); 
             
             fileChunks = [];
@@ -470,11 +563,7 @@
                 const arrayBuffer = await chunkBlob.arrayBuffer();
                 const hash = await hashChunkBuffer(arrayBuffer);
                 
-                fileChunks.push({
-                    index: i,
-                    buffer: arrayBuffer,
-                    hash: hash
-                });
+                fileChunks.push({ index: i, buffer: arrayBuffer, hash: hash });
                 
                 if (i % 200 === 0) {
                    fileWarning.textContent = `Processing file... ${Math.round((i/totalChunks)*100)}% hashed`;
@@ -489,11 +578,14 @@
         }
     });
 
-    btnCreateRoom.addEventListener('click', () => {
+    btnCreateRoom.addEventListener('click', async () => {
         myRole = 'seeder';
-        roomCode = generateRoomCode();
         isSeeder = true;
+        
+        btnCreateRoom.textContent = "Loading...";
+        await initCameraIfNeeded('seeder');
 
+        roomCode = generateRoomCode();
         fileSelectGroup.classList.add('hidden');
         seederActive.classList.remove('hidden');
         displayRoomCode.textContent = roomCode;
@@ -514,6 +606,9 @@
             iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
         });
         peerConnections.set(leecherId, pc);
+
+        // Add Video & Audio tracks
+        addTracksToPC(pc);
 
         const dc = pc.createDataChannel('fileTransfer', { ordered: true });
         dataChannels.set(leecherId, dc);
@@ -588,8 +683,6 @@
             }
 
             const chunk = fileChunks[currentChunk];
-
-            // Pack index(4) + hash(64) + data
             const encoder = new TextEncoder();
             const hashBytes = encoder.encode(chunk.hash);
             const msgLen = 4 + 64 + chunk.buffer.byteLength;
@@ -625,10 +718,13 @@
         btnJoinRoom.disabled = e.target.value.length !== 6;
     });
 
-    btnJoinRoom.addEventListener('click', () => {
+    btnJoinRoom.addEventListener('click', async () => {
         myRole = 'leecher';
         roomCode = joinCodeInput.value.toUpperCase();
         
+        btnJoinRoom.textContent = "Loading...";
+        await initCameraIfNeeded('leecher');
+
         joinGroup.classList.add('hidden');
         leecherActive.classList.remove('hidden');
         leecherStatusText.textContent = 'Connecting to signaling server...';
@@ -643,6 +739,9 @@
         leecherPC = new RTCPeerConnection({
             iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
         });
+
+        // Add Video & Audio tracks
+        addTracksToPC(leecherPC);
 
         leecherPC.ondatachannel = (event) => {
             leecherDC = event.channel;
@@ -698,7 +797,6 @@
                     dc.send('ready');
                 }
             } else if (e.data instanceof ArrayBuffer) {
-                // Unpack binary message
                 const view = new DataView(e.data);
                 const index = view.getUint32(0, true);
                 
@@ -709,7 +807,6 @@
                 
                 const dataBuffer = e.data.slice(68);
 
-                // Verify hash
                 const actualHash = await hashChunkBuffer(dataBuffer);
                 if (actualHash === expectedHash) {
                     receiveBuffer[index] = dataBuffer;
