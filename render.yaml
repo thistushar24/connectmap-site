@@ -2,5 +2,5 @@ services:
   - type: web
     name: bittorrent-p2p
     runtime: node
-    buildCommand: npm install
-    startCommand: node server.js
+    buildCommand: npm install && npm run build
+    startCommand: npm start
