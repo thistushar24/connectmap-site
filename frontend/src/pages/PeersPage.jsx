@@ -37,7 +37,7 @@ export default function PeersPage() {
     const initial = [
       { text: `[${time()}] ENGINE: INITIALIZING PEER DISCOVERY MODULE`, color: 'green' },
       { text: `[${time()}] DHT: BOOTSTRAPPING ROUTING TABLE`, color: null },
-      { text: `[${time()}] TRACKER: CONNECTING TO http://localhost:6969`, color: null },
+      { text: `[${time()}] TRACKER: CONNECTING TO ${window.location.origin}`, color: null },
     ];
     setLogLines(initial);
 
@@ -165,8 +165,8 @@ export default function PeersPage() {
             {/* Tracker URL */}
             <div style={{ background: 'var(--surface-container)', padding: 16, borderRadius: 2 }}>
               <p style={{ fontSize: 9, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 8 }}>Tracker Endpoint</p>
-              <p style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--primary-container)' }}>
-                http://localhost:6969/announce
+              <p style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--primary-container)', wordBreak: 'break-all' }}>
+                {window.location.origin}/api/tracker/announce
               </p>
             </div>
 
@@ -212,8 +212,8 @@ export default function PeersPage() {
           <h3 style={{ fontFamily: 'var(--font-headline)', fontSize: 10, fontWeight: 700, letterSpacing: '0.15em', color: 'var(--secondary-container)', textTransform: 'uppercase' }}>System Status</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {[
-              { label: 'Tracker Server', sub: 'http://localhost:6969', status: trackerOnline ? 'ONLINE' : 'OFFLINE', statusColor: trackerOnline ? 'var(--primary-container)' : 'var(--error)' },
-              { label: 'Backend API', sub: 'http://localhost:4000', status: apiOnline ? 'ONLINE' : 'OFFLINE', statusColor: apiOnline ? 'var(--primary-container)' : 'var(--error)' },
+              { label: 'Tracker Server', sub: window.location.origin, status: trackerOnline ? 'ONLINE' : 'OFFLINE', statusColor: trackerOnline ? 'var(--primary-container)' : 'var(--error)' },
+              { label: 'Backend API', sub: window.location.origin, status: apiOnline ? 'ONLINE' : 'OFFLINE', statusColor: apiOnline ? 'var(--primary-container)' : 'var(--error)' },
               { label: 'Announce Interval', sub: 'Peer re-registration', status: '60s', statusColor: 'var(--secondary-container)' },
             ].map((item) => (
               <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
