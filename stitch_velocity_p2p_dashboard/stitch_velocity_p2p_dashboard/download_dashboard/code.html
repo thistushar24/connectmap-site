@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nebula P2P - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed": "#79ff5b",
+                    "on-primary": "#053900",
+                    "tertiary": "#fff8f7",
+                    "inverse-on-surface": "#313030",
+                    "on-surface-variant": "#baccb0",
+                    "outline-variant": "#3c4b35",
+                    "on-tertiary-fixed-variant": "#5d3f3c",
+                    "primary": "#efffe3",
+                    "surface-container-highest": "#353534",
+                    "tertiary-container": "#ffd3ce",
+                    "surface-container": "#201f1f",
+                    "on-tertiary-fixed": "#2c1513",
+                    "on-error": "#690005",
+                    "secondary": "#aec6ff",
+                    "surface-container-lowest": "#0e0e0e",
+                    "surface-bright": "#3a3939",
+                    "surface-variant": "#353534",
+                    "on-secondary-container": "#00275e",
+                    "on-background": "#e5e2e1",
+                    "on-secondary-fixed-variant": "#004397",
+                    "tertiary-fixed": "#ffdad6",
+                    "secondary-container": "#508eff",
+                    "on-primary-container": "#107100",
+                    "primary-container": "#39ff14",
+                    "on-tertiary": "#442927",
+                    "secondary-fixed-dim": "#aec6ff",
+                    "error": "#ffb4ab",
+                    "on-error-container": "#ffdad6",
+                    "on-secondary": "#002e6b",
+                    "inverse-surface": "#e5e2e1",
+                    "error-container": "#93000a",
+                    "primary-fixed-dim": "#2ae500",
+                    "inverse-primary": "#106e00",
+                    "surface": "#131313",
+                    "on-primary-fixed-variant": "#095300",
+                    "surface-container-high": "#2a2a2a",
+                    "surface-dim": "#131313",
+                    "on-tertiary-container": "#7a5955",
+                    "surface-container-low": "#1c1b1b",
+                    "surface-tint": "#2ae500",
+                    "tertiary-fixed-dim": "#e7bdb8",
+                    "on-secondary-fixed": "#001a43",
+                    "background": "#131313",
+                    "secondary-fixed": "#d8e2ff",
+                    "on-surface": "#e5e2e1",
+                    "on-primary-fixed": "#022100",
+                    "outline": "#85967c"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Space Grotesk"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #131313;
+            color: #e5e2e1;
+            font-family: 'Inter', sans-serif;
+        }
+        .neon-glow {
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.2);
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #131313;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #353534;
+        }
+    </style>
+</head>
+<body class="overflow-hidden">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full flex flex-col h-screen w-64 bg-[#131313] z-50">
+<div class="p-8">
+<h1 class="text-2xl font-black text-[#39FF14] italic font-['Space_Grotesk'] tracking-tighter uppercase">BIT TORRENT</h1>
+<p class="font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-[10px] text-gray-500 mt-1">V2.4.0 ENGINE</p>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-300 font-['Space_Grotesk'] tracking-tighter uppercase font-bold transition-colors duration-150 hover:bg-[#353534]" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="text-sm">Search</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-300 font-['Space_Grotesk'] tracking-tighter uppercase font-bold transition-colors duration-150 hover:bg-[#353534]" href="#">
+<span class="material-symbols-outlined">dataset</span>
+<span class="text-sm">Torrents</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-[#201F1F] text-[#39FF14] border-l-4 border-[#39FF14] font-['Space_Grotesk'] tracking-tighter uppercase font-bold transition-colors duration-150" href="#">
+<span class="material-symbols-outlined">dynamic_form</span>
+<span class="text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-300 font-['Space_Grotesk'] tracking-tighter uppercase font-bold transition-colors duration-150 hover:bg-[#353534]" href="#">
+<span class="material-symbols-outlined">hub</span>
+<span class="text-sm">Peers</span>
+</a>
+</nav>
+<div class="px-6 mb-4">
+<button class="w-full py-3 bg-primary-container text-on-primary-fixed font-bold text-xs tracking-widest uppercase rounded-DEFAULT neon-glow active:opacity-80 active:scale-[0.99] transition-all">
+                ADD TORRENT
+            </button>
+</div>
+<footer class="p-4 bg-[#1C1B1B] space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-gray-500 hover:text-gray-300 text-xs font-['Space_Grotesk'] uppercase font-bold transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">settings</span>
+<span>Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-gray-500 hover:text-gray-300 text-xs font-['Space_Grotesk'] uppercase font-bold transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">help</span>
+<span>Support</span>
+</a>
+</footer>
+</aside>
+<main class="ml-64 min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="w-full h-16 sticky top-0 z-40 bg-[#131313]/60 backdrop-blur-xl border-b border-[#353534]/30 flex items-center justify-between px-8">
+<div class="flex items-center gap-8">
+<span class="text-lg font-black text-[#39FF14] font-['Space_Grotesk'] uppercase">BIT TORRENT</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-gray-400 font-['Space_Grotesk'] text-xs font-bold tracking-widest uppercase hover:text-white transition-all" href="#">Network</a>
+<a class="text-[#39FF14] border-b border-[#39FF14] font-['Space_Grotesk'] text-xs font-bold tracking-widest uppercase transition-all" href="#">DHT</a>
+<a class="text-gray-400 font-['Space_Grotesk'] text-xs font-bold tracking-widest uppercase hover:text-white transition-all" href="#">Storage</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-gray-400 hover:brightness-125 cursor-pointer">notifications</span>
+<span class="material-symbols-outlined text-gray-400 hover:brightness-125 cursor-pointer">account_tree</span>
+</div>
+<button class="bg-[#39FF14] text-[#022100] px-4 py-1.5 font-['Space_Grotesk'] text-[10px] font-black tracking-widest uppercase rounded-sm hover:brightness-125 transition-all">
+                    Connect
+                </button>
+</div>
+</header>
+<!-- Main Content Area -->
+<div class="flex-1 p-8 space-y-8 overflow-y-auto">
+<!-- Hero Performance Stats -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+<div class="bg-surface-container-low p-5 rounded-DEFAULT border-l-2 border-primary-container">
+<p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-['Inter'] mb-1">Total Download</p>
+<div class="flex items-baseline gap-2">
+<h2 class="text-3xl font-black font-['Space_Grotesk'] text-primary-container tracking-tighter">42.8</h2>
+<span class="text-xs font-bold text-gray-400 uppercase">MB/s</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-DEFAULT border-l-2 border-secondary-container">
+<p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-['Inter'] mb-1">Total Upload</p>
+<div class="flex items-baseline gap-2">
+<h2 class="text-3xl font-black font-['Space_Grotesk'] text-secondary-container tracking-tighter">12.4</h2>
+<span class="text-xs font-bold text-gray-400 uppercase">MB/s</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-DEFAULT">
+<p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-['Inter'] mb-1">Active Peers</p>
+<div class="flex items-baseline gap-2">
+<h2 class="text-3xl font-black font-['Space_Grotesk'] text-on-surface tracking-tighter">1,204</h2>
+<span class="text-xs font-bold text-gray-400 uppercase">Nodes</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-5 rounded-DEFAULT">
+<p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest font-['Inter'] mb-1">DHT Status</p>
+<div class="flex items-center gap-2 mt-2">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<h2 class="text-sm font-black font-['Space_Grotesk'] text-on-surface tracking-widest uppercase">Healthy / 82 Nodes</h2>
+</div>
+</div>
+</section>
+<!-- Transfers Grid -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="text-xs font-black font-['Space_Grotesk'] text-on-surface tracking-[0.2em] uppercase">Active Transfers</h3>
+<div class="flex gap-4">
+<button class="text-[10px] font-bold text-gray-500 hover:text-primary-container uppercase transition-colors">Pause All</button>
+<button class="text-[10px] font-bold text-gray-500 hover:text-primary-container uppercase transition-colors">Clear Finished</button>
+</div>
+</div>
+<div class="space-y-0.5">
+<!-- Transfer Item 1 -->
+<div class="grid grid-cols-12 items-center bg-surface-container-low hover:bg-surface-container transition-colors p-4 group">
+<div class="col-span-4 flex flex-col">
+<span class="text-xs font-bold text-on-surface truncate pr-4">Cyberpunk_2077_Update_v2.1_Internal_GOG.iso</span>
+<span class="text-[9px] text-gray-500 uppercase font-medium mt-0.5 tracking-tight">HASH: 7F2A...B4D1 | 54.2 GB</span>
+</div>
+<div class="col-span-3 px-4">
+<div class="h-1 w-full bg-surface-container-highest overflow-hidden rounded-full">
+<div class="h-full bg-primary-container relative" style="width: 78%;">
+<div class="absolute right-0 top-0 h-full w-1 bg-surface-bright"></div>
+</div>
+</div>
+<div class="flex justify-between mt-2">
+<span class="text-[10px] font-bold text-primary-container">78.4%</span>
+<span class="text-[10px] font-bold text-gray-500">ETA: 12m 40s</span>
+</div>
+</div>
+<div class="col-span-1 text-center">
+<span class="text-[10px] font-bold text-primary-container block">12.5 MB/s</span>
+<span class="text-[9px] text-gray-500 uppercase">Down</span>
+</div>
+<div class="col-span-1 text-center">
+<span class="text-[10px] font-bold text-secondary-container block">1.2 MB/s</span>
+<span class="text-[9px] text-gray-500 uppercase">Up</span>
+</div>
+<div class="col-span-1 text-center">
+<span class="text-[10px] font-bold text-on-surface block">342</span>
+<span class="text-[9px] text-gray-500 uppercase">Peers</span>
+</div>
+<div class="col-span-2 flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="material-symbols-outlined text-gray-400 hover:text-primary-container text-lg">pause</button>
+<button class="material-symbols-outlined text-gray-400 hover:text-error text-lg">close</button>
+<button class="material-symbols-outlined text-gray-400 hover:text-white text-lg">more_vert</button>
+</div>
+</div>
+<!-- Transfer Item 2 -->
+<div class="grid grid-cols-12 items-center bg-surface-container p-4 group">
+<div class="col-span-4 flex flex-col">
+<span class="text-xs font-bold text-on-surface truncate pr-4">AI_LLM_Model_Weights_Llama3_70B.tar.gz</span>
+<span class="text-[9px] text-gray-500 uppercase font-medium mt-0.5 tracking-tight">HASH: 3A91...99E2 | 142.8 GB</span>
+</div>
+<div class="col-span-3 px-4">
+<div class="h-1 w-full bg-surface-container-highest overflow-hidden rounded-full">
+<div class="h-full bg-primary-container relative" style="width: 22%;">
+<div class="absolute right-0 top-0 h-full w-1 bg-surface-bright"></div>
+</div>
+</div>
+<div class="flex justify-between mt-2">
+<span class="text-[10px] font-bold text-primary-container">22.1%</span>
+<span class="text-[10px] font-bold text-gray-500">ETA: 4h 15m</span>
+</div>
+</div>
+<div class="col-span-1 text-center">
+<span class="text-[10px] font-bold text-primary-container block">28.2 MB/s</span>
+<span class="text-[9px] text-gray-500 uppercase">Down</span>
+</div>
+<div class="col-span-1 text-center">
+<span class="text-[10px] font-bold text-secondary-container block">4.8 MB/s</span>
+<span class="text-[9px] text-gray-500 uppercase">Up</span>
+</div>
+<div class="col-span-1 text-center">
+<span class="text-[10px] font-bold text-on-surface block">859</span>
+<span class="text-[9px] text-gray-500 uppercase">Peers</span>
+</div>
+<div class="col-span-2 flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="material-symbols-outlined text-gray-400 hover:text-primary-container text-lg">pause</button>
+<button class="material-symbols-outlined text-gray-400 hover:text-error text-lg">close</button>
+<button class="material-symbols-outlined text-gray-400 hover:text-white text-lg">more_vert</button>
+</div>
+</div>
+<!-- Transfer Item 3 -->
+<div class="grid grid-cols-12 items-center bg-surface-container-low hover:bg-surface-container transition-colors p-4 group">
+<div class="col-span-4 flex flex-col">
+<span class="text-xs font-bold text-on-surface truncate pr-4">Ubuntu_24.04_LTS_Desktop_AMD64.iso</span>
+<span class="text-[9px] text-gray-500 uppercase font-medium mt-0.5 tracking-tight">HASH: D8B2...F11A | 4.8 GB</span>
+</div>
+<div class="col-span-3 px-4">
+<div class="h-1 w-full bg-surface-container-highest overflow-hidden rounded-full">
+<div class="h-full bg-primary-container relative" style="width: 100%;">
+<div class="absolute right-0 top-0 h-full w-1 bg-surface-bright"></div>
+</div>
+</div>
+<div class="flex justify-between mt-2">
+<span class="text-[10px] font-bold text-primary-container uppercase">Seeding</span>
+<span class="text-[10px] font-bold text-gray-500">Ratio: 4.21</span>
+</div>
+</div>
+<div class="col-span-1 text-center">
+<span class="text-[10px] font-bold text-gray-600 block">0.0 KB/s</span>
+<span class="text-[9px] text-gray-500 uppercase">Down</span>
+</div>
+<div class="col-span-1 text-center">
+<span class="text-[10px] font-bold text-secondary-container block">6.2 MB/s</span>
+<span class="text-[9px] text-gray-500 uppercase">Up</span>
+</div>
+<div class="col-span-1 text-center">
+<span class="text-[10px] font-bold text-on-surface block">12</span>
+<span class="text-[9px] text-gray-500 uppercase">Peers</span>
+</div>
+<div class="col-span-2 flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="material-symbols-outlined text-gray-400 hover:text-primary-container text-lg">pause</button>
+<button class="material-symbols-outlined text-gray-400 hover:text-error text-lg">close</button>
+<button class="material-symbols-outlined text-gray-400 hover:text-white text-lg">more_vert</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Performance Analytics Section -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Speed Graph -->
+<div class="lg:col-span-2 bg-surface-container-low p-6 rounded-DEFAULT border border-[#353534]/30">
+<div class="flex items-center justify-between mb-6">
+<h3 class="text-[10px] font-black font-['Space_Grotesk'] text-on-surface tracking-[0.2em] uppercase">Network Throughput (60s)</h3>
+<div class="flex gap-4">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-0.5 bg-primary-container"></span>
+<span class="text-[9px] font-bold text-gray-400 uppercase">Download</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-0.5 bg-secondary-container"></span>
+<span class="text-[9px] font-bold text-gray-400 uppercase">Upload</span>
+</div>
+</div>
+</div>
+<div class="h-48 w-full flex items-end gap-1 relative overflow-hidden">
+<!-- Mockup Graph with SVG Path -->
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none">
+<path d="M0 150 Q 50 120, 100 130 T 200 80 T 300 100 T 400 60 T 500 90 T 600 40 T 700 70 L 700 200 L 0 200 Z" fill="rgba(57, 255, 20, 0.05)" stroke="#39FF14" stroke-width="2"></path>
+<path d="M0 180 Q 50 170, 100 175 T 200 160 T 300 165 T 400 150 T 500 170 T 600 140 T 700 155 L 700 200 L 0 200 Z" fill="rgba(80, 142, 255, 0.05)" stroke="#508EFF" stroke-width="1.5"></path>
+</svg>
+<!-- Grid Lines -->
+<div class="absolute inset-0 flex flex-col justify-between opacity-10 pointer-events-none">
+<div class="border-b border-white w-full h-px"></div>
+<div class="border-b border-white w-full h-px"></div>
+<div class="border-b border-white w-full h-px"></div>
+<div class="border-b border-white w-full h-px"></div>
+</div>
+</div>
+</div>
+<!-- Node Visualizer / Peer Counts -->
+<div class="bg-surface-container-low p-6 rounded-DEFAULT border border-[#353534]/30 flex flex-col">
+<h3 class="text-[10px] font-black font-['Space_Grotesk'] text-on-surface tracking-[0.2em] uppercase mb-6">Regional Distribution</h3>
+<div class="flex-1 relative bg-surface-container-lowest rounded overflow-hidden flex items-center justify-center p-4">
+<img alt="World map" class="opacity-20 grayscale brightness-50 w-full h-full object-cover absolute inset-0" data-alt="Monochromatic dark world map with neon green dots representing active peer nodes across continents in a tech interface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXrMU2ZFEhreIqkHePcDDSJdPjpr-aSlezNQiipq1DdKKgDuU3XG1LRQLZs4Yp6XQz_rlTUtmTHlPCQ1fBQpE4ZFyw01tM0S7cs7wiu5i8wWWND76pVF23FXbDplNFfGbLSNZb4QAPCJKBuxXv6Uk1j23Dg-7-pAHR8mTPHOAXJSqm478JReftxAk_ZFGJCZvD57Aud1kAduN02UotZHaaJoOyo80j4FWmYwJuZ18fZ1PiwyPovA-coVMXxI0PE4xNxC2yycYIidyd"/>
+<div class="relative z-10 w-full space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-[9px] font-bold text-gray-400 font-['Space_Grotesk']">NA-WEST</span>
+<div class="h-1.5 w-16 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary-container" style="width: 85%;"></div>
+</div>
+</div>
+<span class="text-[10px] font-mono text-primary-container">412ms</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-[9px] font-bold text-gray-400 font-['Space_Grotesk']">EU-CENTRAL</span>
+<div class="h-1.5 w-16 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary-container" style="width: 62%;"></div>
+</div>
+</div>
+<span class="text-[10px] font-mono text-primary-container">88ms</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="text-[9px] font-bold text-gray-400 font-['Space_Grotesk']">ASIA-SOUTH</span>
+<div class="h-1.5 w-16 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary-container" style="width: 31%;"></div>
+</div>
+</div>
+<span class="text-[10px] font-mono text-primary-container">194ms</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Modal Mockup (Glassmorphism Overlay) -->
+<div class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-surface-container-lowest/40 backdrop-blur-md">
+<div class="bg-surface-variant/60 backdrop-blur-[40px] p-8 w-[400px] rounded-DEFAULT border border-white/10 shadow-2xl">
+<h4 class="text-xs font-black font-['Space_Grotesk'] text-primary-container tracking-widest uppercase mb-4">Adding New Resource</h4>
+<div class="space-y-4">
+<div class="space-y-1">
+<label class="text-[9px] font-bold text-gray-500 uppercase tracking-widest">Magnet URL / Hash</label>
+<input class="w-full bg-surface-container-lowest border-none outline outline-1 outline-outline-variant/30 focus:outline-primary-container text-xs p-3 text-on-surface" type="text"/>
+</div>
+<div class="flex gap-2 pt-4">
+<button class="flex-1 py-3 bg-primary-container text-on-primary-fixed font-bold text-xs tracking-widest uppercase rounded-DEFAULT">Start Download</button>
+<button class="px-6 py-3 border border-outline-variant text-gray-400 font-bold text-xs tracking-widest uppercase rounded-DEFAULT">Cancel</button>
+</div>
+</div>
+</div>
+</div>
+</body></html>

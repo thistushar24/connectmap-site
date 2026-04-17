@@ -1,0 +1,10 @@
+{
+  "name": "bittorrent-tracker",
+  "version": "1.0.0",
+  "description": "BitTorrent Tracker Server",
+  "main": "tracker.js",
+  "scripts": {
+    "start": "node tracker.js"
+  },
+  "dependencies": {}
+}

@@ -1,0 +1,341 @@
+<html class="dark"><head>
+<meta charset="utf-8"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&amp;family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "primary-fixed": "#79ff5b",
+            "on-primary": "#053900",
+            "tertiary": "#fff8f7",
+            "inverse-on-surface": "#313030",
+            "on-surface-variant": "#baccb0",
+            "outline-variant": "#3c4b35",
+            "on-tertiary-fixed-variant": "#5d3f3c",
+            "primary": "#efffe3",
+            "surface-container-highest": "#353534",
+            "tertiary-container": "#ffd3ce",
+            "surface-container": "#201f1f",
+            "on-tertiary-fixed": "#2c1513",
+            "on-error": "#690005",
+            "secondary": "#aec6ff",
+            "surface-container-lowest": "#0e0e0e",
+            "surface-bright": "#3a3939",
+            "surface-variant": "#353534",
+            "on-secondary-container": "#00275e",
+            "on-background": "#e5e2e1",
+            "on-secondary-fixed-variant": "#004397",
+            "tertiary-fixed": "#ffdad6",
+            "secondary-container": "#508eff",
+            "on-primary-container": "#107100",
+            "primary-container": "#39ff14",
+            "on-tertiary": "#442927",
+            "secondary-fixed-dim": "#aec6ff",
+            "error": "#ffb4ab",
+            "on-error-container": "#ffdad6",
+            "on-secondary": "#002e6b",
+            "inverse-surface": "#e5e2e1",
+            "error-container": "#93000a",
+            "primary-fixed-dim": "#2ae500",
+            "inverse-primary": "#106e00",
+            "surface": "#131313",
+            "on-primary-fixed-variant": "#095300",
+            "surface-container-high": "#2a2a2a",
+            "surface-dim": "#131313",
+            "on-tertiary-container": "#7a5955",
+            "surface-container-low": "#1c1b1b",
+            "surface-tint": "#2ae500",
+            "tertiary-fixed-dim": "#e7bdb8",
+            "on-secondary-fixed": "#001a43",
+            "background": "#131313",
+            "secondary-fixed": "#d8e2ff",
+            "on-surface": "#e5e2e1",
+            "on-primary-fixed": "#022100",
+            "outline": "#85967c"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "fontFamily": {
+            "headline": ["Space Grotesk"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      font-size: 20px;
+    }
+    .glass-panel {
+      background: rgba(53, 53, 52, 0.6);
+      backdrop-filter: blur(40px);
+    }
+    body {
+      background-color: #131313;
+      color: #e5e2e1;
+      font-family: 'Inter', sans-serif;
+    }
+    .neon-glow {
+      box-shadow: 0 0 15px rgba(57, 255, 20, 0.4);
+    }
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #131313;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #353534;
+    }
+  </style>
+</head>
+<body class="flex min-h-screen">
+<!-- SideNavBar Anchor -->
+<aside class="fixed left-0 top-0 h-full flex flex-col bg-[#131313] h-screen w-64 border-r-0 z-50">
+<div class="p-6 flex flex-col h-full">
+<div class="mb-10">
+<h1 class="text-2xl font-black text-[#39FF14] italic font-['Space_Grotesk'] tracking-tighter uppercase">BIT TORRENT</h1>
+<p class="text-[10px] font-bold tracking-widest text-gray-500 font-['Space_Grotesk'] uppercase mt-1">V2.4.0 ENGINE</p>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-300 hover:bg-[#353534] transition-colors duration-150 font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-sm" href="#">
+<span class="material-symbols-outlined">search</span> Search
+        </a>
+<a class="flex items-center gap-3 px-4 py-3 bg-[#201F1F] text-[#39FF14] border-l-4 border-[#39FF14] font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-sm" href="#">
+<span class="material-symbols-outlined">dataset</span> Torrents
+        </a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-300 hover:bg-[#353534] transition-colors duration-150 font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-sm" href="#">
+<span class="material-symbols-outlined">dynamic_form</span> Dashboard
+        </a>
+<a class="flex items-center gap-3 px-4 py-3 text-gray-500 hover:text-gray-300 hover:bg-[#353534] transition-colors duration-150 font-['Space_Grotesk'] tracking-tighter uppercase font-bold text-sm" href="#">
+<span class="material-symbols-outlined">hub</span> Peers
+        </a>
+</nav>
+<div class="mt-auto pt-6 space-y-2 border-t border-[#353534]/30">
+<button class="w-full bg-primary-container text-on-primary-fixed font-black py-3 rounded-DEFAULT mb-4 hover:brightness-125 transition-all text-xs font-['Space_Grotesk'] uppercase tracking-widest">
+          ADD TORRENT
+        </button>
+<a class="flex items-center gap-3 px-4 py-2 text-gray-500 hover:text-gray-300 text-xs font-['Space_Grotesk'] uppercase font-bold" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+        </a>
+<a class="flex items-center gap-3 px-4 py-2 text-gray-500 hover:text-gray-300 text-xs font-['Space_Grotesk'] uppercase font-bold" href="#">
+<span class="material-symbols-outlined">help</span> Support
+        </a>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="flex-1 ml-64 min-h-screen flex flex-col">
+<!-- TopAppBar Anchor -->
+<header class="w-full h-16 sticky top-0 z-40 bg-[#131313]/60 backdrop-blur-xl border-b border-[#353534]/30 flex items-center justify-between px-8">
+<div class="flex items-center gap-8">
+<span class="text-lg font-black text-[#39FF14] font-['Space_Grotesk'] uppercase">BIT TORRENT</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-gray-400 font-['Space_Grotesk'] text-xs font-bold tracking-widest uppercase hover:text-white transition-all" href="#">Network</a>
+<a class="text-[#39FF14] border-b border-[#39FF14] font-['Space_Grotesk'] text-xs font-bold tracking-widest uppercase" href="#">DHT</a>
+<a class="text-gray-400 font-['Space_Grotesk'] text-xs font-bold tracking-widest uppercase hover:text-white transition-all" href="#">Storage</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 material-symbols-outlined text-sm">search</span>
+<input class="bg-surface-container border-none text-[10px] py-1.5 pl-10 pr-4 w-48 rounded-DEFAULT focus:ring-1 focus:ring-primary-container font-label uppercase tracking-widest" placeholder="QUERY NODE..." type="text"/>
+</div>
+<div class="flex gap-4 items-center">
+<span class="material-symbols-outlined text-gray-400 cursor-pointer hover:text-[#39FF14]">notifications</span>
+<span class="material-symbols-outlined text-gray-400 cursor-pointer hover:text-[#39FF14]">account_tree</span>
+<button class="bg-surface-container-highest border border-outline-variant/30 text-[#39FF14] px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest hover:brightness-125 transition-all">
+            Connect
+          </button>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-8 max-w-7xl mx-auto w-full space-y-8">
+<!-- File Hero Section -->
+<section class="relative group overflow-hidden rounded-lg bg-surface-container-low p-10 border-l-4 border-[#39FF14]">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-9xl">folder_zip</span>
+</div>
+<div class="relative z-10">
+<div class="flex items-center gap-3 mb-2">
+<span class="bg-primary-container/10 text-primary-container text-[10px] font-black px-2 py-0.5 rounded-sm tracking-tighter uppercase">Status: Seeding</span>
+<span class="text-gray-500 text-[10px] font-bold tracking-widest uppercase">ID: NEB-9921-X</span>
+</div>
+<h2 class="text-5xl font-extrabold font-headline tracking-tighter text-on-surface mb-4">Cyber_Engine_Core_v5.0.1_x64.bundle</h2>
+<div class="flex items-center gap-6">
+<button class="neon-glow bg-primary-container text-on-primary-fixed px-8 py-3 font-black text-xs uppercase tracking-[0.2em] rounded-DEFAULT flex items-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined">download</span> Download Now
+            </button>
+<button class="bg-surface-container-highest border border-outline-variant/20 text-on-surface px-6 py-3 font-bold text-xs uppercase tracking-widest rounded-DEFAULT flex items-center gap-3 hover:bg-surface-bright transition-colors">
+<span class="material-symbols-outlined">share</span> Share Magnet
+            </button>
+</div>
+</div>
+</section>
+<!-- Bento Metadata & Stats Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Metadata Cluster -->
+<div class="lg:col-span-2 glass-panel p-6 rounded-lg border border-outline-variant/10">
+<h3 class="text-xs font-black uppercase tracking-[0.2em] text-[#39FF14] mb-6 flex items-center gap-2">
+<span class="w-1.5 h-1.5 bg-[#39FF14] rounded-full"></span> SYSTEM METADATA
+          </h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+<div>
+<p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Total Size</p>
+<p class="font-headline text-xl font-bold tracking-tight">42.85 GB</p>
+</div>
+<div>
+<p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Piece Count</p>
+<p class="font-headline text-xl font-bold tracking-tight">21,424 <span class="text-[10px] text-gray-400">@ 2MB</span></p>
+</div>
+<div>
+<p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Date Encoded</p>
+<p class="font-headline text-xl font-bold tracking-tight">24 OCT 2023</p>
+</div>
+<div>
+<p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Health</p>
+<p class="font-headline text-xl font-bold tracking-tight text-[#39FF14]">99.8%</p>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant/10">
+<p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Info Hash (SHA-1)</p>
+<p class="font-mono text-xs text-secondary bg-surface-container p-3 rounded-sm break-all tracking-wider">
+              8f4c2e10a9b3d5f761c0e2a4b6d8f0e2a4c6e801
+            </p>
+</div>
+</div>
+<!-- Seeder/Leecher Visualization -->
+<div class="glass-panel p-6 rounded-lg border border-outline-variant/10 flex flex-col justify-between">
+<div>
+<h3 class="text-xs font-black uppercase tracking-[0.2em] text-secondary mb-6 flex items-center gap-2">
+<span class="w-1.5 h-1.5 bg-secondary rounded-full"></span> SWARM DYNAMICS
+            </h3>
+<div class="space-y-6">
+<div class="flex justify-between items-end">
+<div>
+<p class="text-3xl font-black font-headline tracking-tighter">1,248</p>
+<p class="text-[10px] font-bold text-[#39FF14] uppercase tracking-widest">Seeders (Active)</p>
+</div>
+<div class="text-right">
+<p class="text-3xl font-black font-headline tracking-tighter">42</p>
+<p class="text-[10px] font-bold text-error uppercase tracking-widest">Leechers</p>
+</div>
+</div>
+<!-- Progress Bar -->
+<div class="h-2 bg-surface-container-highest rounded-full overflow-hidden relative">
+<div class="absolute top-0 left-0 h-full bg-[#39FF14] w-[92%]">
+<div class="absolute right-0 top-0 w-1 h-full bg-white/50"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 p-4 bg-surface-container rounded-sm">
+<div class="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest">
+<span class="text-gray-500">Global Avail.</span>
+<span class="text-[#39FF14]">24.8 Copies</span>
+</div>
+</div>
+</div>
+</div>
+<!-- File Structure & Interactive View -->
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+<!-- Folder Tree View -->
+<div class="lg:col-span-3 glass-panel rounded-lg border border-outline-variant/10 overflow-hidden">
+<div class="bg-surface-container px-6 py-4 border-b border-outline-variant/10 flex items-center justify-between">
+<h3 class="text-xs font-black uppercase tracking-[0.2em]">Package Structure</h3>
+<span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">12 Files Total</span>
+</div>
+<div class="p-6 space-y-2 max-h-[400px] overflow-y-auto">
+<!-- Root Folder -->
+<div class="flex items-center gap-3 py-2 border-b border-white/5 group hover:bg-white/5 px-2 transition-colors">
+<span class="material-symbols-outlined text-primary-container">folder_open</span>
+<span class="text-sm font-medium flex-1">Cyber_Engine_Core</span>
+<span class="text-[10px] text-gray-500 font-mono">--</span>
+</div>
+<!-- Sub Files -->
+<div class="pl-8 flex items-center gap-3 py-2 border-b border-white/5 group hover:bg-white/5 px-2 transition-colors">
+<span class="material-symbols-outlined text-secondary">description</span>
+<span class="text-sm font-medium flex-1">README_DEPLOYMENT.md</span>
+<span class="text-[10px] text-gray-400 font-mono">12.4 KB</span>
+</div>
+<div class="pl-8 flex items-center gap-3 py-2 border-b border-white/5 group hover:bg-white/5 px-2 transition-colors">
+<span class="material-symbols-outlined text-secondary">terminal</span>
+<span class="text-sm font-medium flex-1">core_engine.bin</span>
+<span class="text-[10px] text-gray-400 font-mono">18.4 GB</span>
+</div>
+<div class="pl-8 flex items-center gap-3 py-2 border-b border-white/5 group hover:bg-white/5 px-2 transition-colors">
+<span class="material-symbols-outlined text-secondary">inventory_2</span>
+<span class="text-sm font-medium flex-1">assets_pack.neb</span>
+<span class="text-[10px] text-gray-400 font-mono">24.2 GB</span>
+</div>
+<div class="pl-8 flex items-center gap-3 py-2 border-b border-white/5 group hover:bg-white/5 px-2 transition-colors">
+<span class="material-symbols-outlined text-[#39FF14]">check_circle</span>
+<span class="text-sm font-medium flex-1">verification_sig.asc</span>
+<span class="text-[10px] text-gray-400 font-mono">1.2 KB</span>
+</div>
+<div class="pl-8 flex items-center gap-3 py-2 border-b border-white/5 group hover:bg-white/5 px-2 transition-colors">
+<span class="material-symbols-outlined text-secondary">description</span>
+<span class="text-sm font-medium flex-1">CHANGELOG.txt</span>
+<span class="text-[10px] text-gray-400 font-mono">48.0 KB</span>
+</div>
+</div>
+</div>
+<!-- Node Status / Quick Actions -->
+<div class="space-y-6">
+<div class="glass-panel p-6 rounded-lg border border-outline-variant/10">
+<h3 class="text-xs font-black uppercase tracking-[0.2em] mb-4">Transfer Status</h3>
+<div class="space-y-4">
+<div class="flex items-center gap-4">
+<div class="w-2 h-2 rounded-full bg-[#39FF14] animate-pulse"></div>
+<div class="flex-1">
+<p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Download</p>
+<p class="font-headline font-bold text-lg">12.4 MB/s</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-2 h-2 rounded-full bg-secondary-container"></div>
+<div class="flex-1">
+<p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">Upload</p>
+<p class="font-headline font-bold text-lg">2.1 MB/s</p>
+</div>
+</div>
+</div>
+</div>
+<div class="glass-panel p-6 rounded-lg border border-outline-variant/10">
+<h3 class="text-xs font-black uppercase tracking-[0.2em] mb-4">Engine Config</h3>
+<div class="space-y-3">
+<label class="flex items-center gap-3 cursor-pointer">
+<input checked="" class="rounded-sm bg-surface-container border-outline-variant text-[#39FF14] focus:ring-0" type="checkbox"/>
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface">Sequential Download</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer">
+<input checked="" class="rounded-sm bg-surface-container border-outline-variant text-[#39FF14] focus:ring-0" type="checkbox"/>
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface">Prioritize First/Last</span>
+</label>
+<label class="flex items-center gap-3 cursor-pointer">
+<input class="rounded-sm bg-surface-container border-outline-variant text-[#39FF14] focus:ring-0" type="checkbox"/>
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface">Encrypt Traffic</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Visual Accent: Ambient Light -->
+<div class="fixed bottom-0 right-0 w-[500px] h-[500px] bg-[#39FF14]/5 blur-[120px] pointer-events-none -z-10"></div>
+<div class="fixed top-0 left-0 w-[500px] h-[500px] bg-secondary-container/5 blur-[120px] pointer-events-none -z-10"></div>
+</body></html>
